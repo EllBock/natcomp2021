@@ -3,6 +3,7 @@ import sys
 import math
 import snakeoil
 import time
+import os
 
 FREQUENCY_SCALER = 10
 
@@ -781,6 +782,10 @@ if __name__ == "__main__":
         T.write_track(C.trackname)
     C.R.d['meta'] = 1
     C.respond_to_server()
-    with open(currtime + ".csv", "w") as f:
+
+    if not os.path.exists('results'):
+        os.mkdir('results')
+    with open(os.path.join('results', currtime + ".csv"), "w") as f:
         f.write('\n'.join(output))
+
     C.shutdown()
