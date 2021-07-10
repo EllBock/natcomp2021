@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # snakeoil.py
 # Chris X Edwards <snakeoil@xed.ch>
 # Snake Oil is a Python library for interfacing with a TORCS
@@ -278,6 +278,7 @@ class Client():
         #       % (self.maxSteps,self.port))
         self.so.close()
         self.so = None
+        self.S.up = False
         # sys.exit() # No need for this really.
 
 
@@ -287,6 +288,7 @@ class ServerState():
     def __init__(self):
         self.servstr = str()
         self.d = dict()
+        self.up = True
 
     def parse_server_str(self, server_string):
         '''Parse the server string.'''
@@ -298,7 +300,7 @@ class ServerState():
 
     def __repr__(self):
         # Comment the next line for raw output:
-        return self.fancyout()
+        # return self.fancyout()
         # -------------------------------------
         out = str()
         for k in sorted(self.d):
@@ -308,6 +310,42 @@ class ServerState():
                 strout = ', '.join(strlist)
             out += "%s: %s\n" % (k, strout)
         return out
+
+    def csvout(self):
+        out = str()
+        sensors = [  # Select the ones you want in the order you want them.
+            'curLapTime',
+            'lastLapTime',
+            'stucktimer',
+            # 'damage',
+            # 'focus',
+            # 'fuel',
+            # 'gear',
+            'distRaced',
+            'distFromStart',
+            'racePos',
+            # 'opponents',
+            # 'wheelSpinVel',
+            'z',
+            'speedZ',
+            'speedY',
+            'speedX',
+            'targetSpeed',
+            'rpm',
+            'skid',
+            'slip',
+            #'track',
+            'trackPos',
+            'angle',
+        ]
+
+        strlist = list()
+        for k in sensors:
+            strlist.append(str(self.d.get(k)))
+
+        return ', '.join(strlist)
+
+
 
     def fancyout(self):
         '''Specialty output for useful ServerState monitoring.'''

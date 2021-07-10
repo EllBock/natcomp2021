@@ -1,7 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import sys
 import math
 import snakeoil
+import time
+
+FREQUENCY_SCALER = 10
 
 target_speed = 0
 lap = 0
@@ -715,6 +718,9 @@ def initialize_car(c):
 
 
 if __name__ == "__main__":
+    # Per salvare il file finale
+    currtime = time.strftime("%y%m%d-%H%M%S")
+
     T = Track()
     C = snakeoil.Client()
     if C.stage == 1 or C.stage == 2:
@@ -727,12 +733,54 @@ if __name__ == "__main__":
     initialize_car(C)
     C.S.d['stucktimer'] = 0
     C.S.d['targetSpeed'] = 0
+    iter = 0
+
+    sensors = [  # DEVE ESSERE COERENTE CON SNAKEOIL CSVOUT FUNCT.
+        'iteration', # TRANNE QUESTO, SERVE PER TENERE CONTO DELLE ITERAZIONI
+        'curLapTime',
+        'lastLapTime',
+        'stucktimer',
+        # 'damage',
+        # 'focus',
+        # 'fuel',
+        # 'gear',
+        'distRaced',
+        'distFromStart',
+        'racePos',
+        # 'opponents',
+        # 'wheelSpinVel',
+        'z',
+        'speedZ',
+        'speedY',
+        'speedX',
+        'targetSpeed',
+        'rpm',
+        'skid',
+        'slip',
+        # 'track',
+        'trackPos',
+        'angle',
+    ]
+
+    sensorstrlist = ', '.join(sensors)
+
+    output = list()
+    output.append(sensorstrlist)
+
     for step in xrange(C.maxSteps, 0, -1):
         C.get_servers_input()
+        if iter % FREQUENCY_SCALER == 0:
+            output.append(str(iter) + ", " + C.S.csvout())
+        if not C.S.up:
+            print "Server shutdown!"
+            break
         drive(C, step)
         C.respond_to_server()
+        iter += 1
     if not C.stage:
         T.write_track(C.trackname)
     C.R.d['meta'] = 1
     C.respond_to_server()
+    with open(currtime + ".csv", "w") as f:
+        f.write('\n'.join(output))
     C.shutdown()
