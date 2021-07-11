@@ -1,4 +1,6 @@
 #!/usr/bin/python2
+# -*- coding: UTF-8 -*-
+
 import sys
 import math
 import snakeoil
@@ -770,9 +772,13 @@ if __name__ == "__main__":
 
     for step in xrange(C.maxSteps, 0, -1):
         C.get_servers_input()
-        if iter % FREQUENCY_SCALER == 0:
+        cond = iter % FREQUENCY_SCALER == 0
+        if cond:
             output.append(str(iter) + ", " + C.S.csvout())
         if not C.S.up:
+            if not cond:
+                # Salviamo l'ultimo stato prima di chiudere se non è stato già salvato
+                output.append(str(iter) + ", " + C.S.csvout())
             print "Server shutdown!"
             break
         drive(C, step)
