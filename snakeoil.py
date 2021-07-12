@@ -317,7 +317,7 @@ class ServerState():
             'curLapTime',
             'lastLapTime',
             'stucktimer',
-            # 'damage',
+            'damage',
             # 'focus',
             # 'fuel',
             # 'gear',
@@ -341,9 +341,12 @@ class ServerState():
 
         strlist = list()
         for k in sensors:
-            strlist.append(str(self.d.get(k)))
+            value = str(self.d.get(k))
+            if value == 'None':
+                value = '0'
+            strlist.append(value)
 
-        return ', '.join(strlist)
+        return ','.join(strlist)
 
 
 

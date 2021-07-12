@@ -743,7 +743,7 @@ if __name__ == "__main__":
         'curLapTime',
         'lastLapTime',
         'stucktimer',
-        # 'damage',
+        'damage',
         # 'focus',
         # 'fuel',
         # 'gear',
@@ -765,7 +765,7 @@ if __name__ == "__main__":
         'angle',
     ]
 
-    sensorstrlist = ', '.join(sensors)
+    sensorstrlist = ','.join(sensors)
 
     output = list()
     output.append(sensorstrlist)
@@ -782,6 +782,7 @@ if __name__ == "__main__":
             print "Server shutdown!"
             break
         drive(C, step)
+        print C.S.d['trackPos']
         C.respond_to_server()
         iter += 1
     if not C.stage:
