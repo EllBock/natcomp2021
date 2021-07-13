@@ -520,6 +520,11 @@ def iberian_skid(wsv, sx):
 
 
 def skid_severity(P, wsv_list, sx):
+    """
+    Params:
+        wsv_list: Wheel Speed Velocity for each wheel in a list
+        sx: Speed on the X axis
+    """
     skid = 0
     avgws = sum(wsv_list) / 4
     if avgws:
@@ -782,7 +787,6 @@ if __name__ == "__main__":
             print "Server shutdown!"
             break
         drive(C, step)
-        print C.S.d['trackPos']
         C.respond_to_server()
         iter += 1
     if not C.stage:

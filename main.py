@@ -5,26 +5,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 FILENAME = "results/210712-154723.csv"
-KEYS = [#'iteration',
-        #'curLapTime',
-        #'lastLapTime',
+KEYS = [
+        # 'iteration',
+        # 'curLapTime',
+        # 'lastLapTime',
         'raceTime',
-        #'stucktimer',
+        # 'stucktimer',
         'damage',
-        #'distRaced',
-        #'distFromStart',
-        #'racePos',
-        #'z',
-        #'speedZ',
-        #'speedY',
-        #'speedX',
+        # 'distRaced',
+        # 'distFromStart',
+        # 'racePos',
+        # 'z',
+        # 'speedZ',
+        # 'speedY',
+        # 'speedX',
         'speed',
-        #'targetSpeed',
-        #'rpm',
-        #'skid',
-        #'slip',
-        #'trackPos',
-        #'angle',
+        # 'targetSpeed',
+        # 'rpm',
+        # 'skid',
+        # 'slip',
+        # 'trackPos',
+        # 'angle',
         ]
 
 
@@ -80,7 +81,7 @@ def calculate_race_time(csv_col_dict: dict):
     return csv_col_dict
 
 
-def calculate_off_piste_time(csv_col_dict: dict):
+def calculate_offroad_time(csv_col_dict: dict):
     trackPos = np.array(csv_col_dict['trackPos'])
     time = np.array(csv_col_dict['raceTime'])
 
@@ -90,13 +91,13 @@ def calculate_off_piste_time(csv_col_dict: dict):
 
     mask = np.abs(mask - rshift_mask)
     indices = list(np.nonzero(mask)[0])
-    off_piste_time = 0
+    offroad_time = 0
     while len(indices) > 0:
         a = indices.pop()
         b = indices.pop()
-        off_piste_time += time[a] - time[b]
+        offroad_time += time[a] - time[b]
 
-    return off_piste_time
+    return offroad_time
 
 
 if __name__ == "__main__":
@@ -106,14 +107,14 @@ if __name__ == "__main__":
 
     total_time = d['raceTime'][-1]
     damage = d['damage'][-1]
-    offpiste = calculate_off_piste_time(d)
+    offroad = calculate_offroad_time(d)
     print(f"Time: {total_time}")
     print(f"Damage: {damage}")
-    print(f"Off-piste: {offpiste}")
+    print(f"Offroad: {offroad}")
 
     alpha = 0.25
     beta = 1
-    score = total_time + alpha*damage + beta*offpiste
+    score = total_time + alpha*damage + beta*offroad
     print(f"Score: {score}")
 
     i = 0
