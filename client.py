@@ -296,6 +296,19 @@ def track_sensor_analysis(t, a):
 
 
 def speed_planning(P, d, t, tp, sx, sy, st, a, infleX, infleA):
+    """
+    Params:
+        P:      Parameter dictionary
+        d:      Distance from the Start point
+        t:      Track (?)
+        t:      Track Position [-1, 1] with 0 being the center of the track
+        sx:     Speed on the x axis
+        sy:     Speed on the y axis
+        st:     Steer (?)
+        a:      Angle (?)
+        infleX:
+        infleA:
+    """
     cansee = max(t[2:17])
     if cansee > 0:
         carmax = P['carmaxvisib'] * cansee
@@ -389,6 +402,14 @@ def traffic_speed_adjustment(os, sx, ts, tsen):
 
 
 def steer_centeralign(P, sti, tp, a, ttp=0):
+    """
+    Params:
+        P:      Parameter dictionary
+        sti:    Steer (?)
+        tp:     Track position [-1, 1] where 0 is the center of the track
+        a:      Angle of the car
+        ttp:    ??
+    """
     pointing_ahead = abs(a) < P['pointingahead']
     onthetrack = abs(tp) < P['sortofontrack']
     offrd = 1
@@ -412,6 +433,18 @@ def speed_appropriate_steer(P, sto, sx):
 
 
 def steer_reactive(P, sti, tp, a, t, sx, infleX, infleA, str8ness):
+    """
+    Params:
+        P:          Parameter dictionary
+        sti:        Steer
+        tp:         Track Position
+        a:          Angle
+        t:          Track
+        sx:         Speed on the x axis
+        infleX:     ??
+        infleA:     ??
+        str8ness:   How straight is the track?
+    """
     if abs(a) > .6:
         return steer_centeralign(P, sti, tp, a)
     maxsen = max(t)
@@ -463,6 +496,15 @@ def traffic_navigation(os, sti):
 
 
 def clutch_control(P, cli, sl, sx, sy, g):
+    """
+    Params:
+        P:      Parameter dictionary
+        cli:    Clutch from DriverAction
+        sl:     Slip
+        sx:     Speed on the x axis
+        sy:     Speed on the y axis
+        g:      Gear
+    """
     if abs(sx) < .1 and not cli:
         return 1
     clo = cli - .2
@@ -472,6 +514,10 @@ def clutch_control(P, cli, sl, sx, sy, g):
 
 
 def throttle_control(P, ai, ts, sx, sl, sy, ang, steer):
+    """"
+    P, ai: R['accel'], ts: target_speed, sx: S['speedX'], sl: slip,
+    sy: S['speedY'], ang: S['angle'], steer: R['steer']
+    """
     ao = ai
     if ts < 0:
         tooslow = sx - ts
@@ -496,6 +542,15 @@ def throttle_control(P, ai, ts, sx, sl, sy, ang, steer):
 
 
 def brake_control(P, bi, sx, sy, ts, sk):
+    """
+    Params:
+        P: Parameter dictionary
+        bi: Break input
+        sx: Speed X
+        sy: Speed Y
+        ts: Target Speed
+        sk: Skid
+    """
     bo = bi
     toofast = sx - ts
     if toofast < 0:
