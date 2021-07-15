@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     alpha = 0.25
     beta = 1
-    score = total_time + alpha*damage + beta*offroad
+    score = total_time + alpha * damage + beta * offroad
     print(f"Score: {score}")
 
     i = 0
