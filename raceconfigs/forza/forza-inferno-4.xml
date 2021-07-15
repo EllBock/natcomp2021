@@ -108,7 +108,8 @@
     </section>
 
     <section name="13">
-      <attnum name="idx" val="0"/>
+      <attnum name="idx" val="
+4"/>
       <attstr name="module" val="scr_server"/>
     </section>
 
@@ -141,7 +142,8 @@
   <section name="Drivers Start List">
     <section name="1">
       <attstr name="module" val="scr_server"/>
-      <attnum name="idx" val="0"/>
+      <attnum name="idx" val="
+4"/>
     </section>
 
   </section>
