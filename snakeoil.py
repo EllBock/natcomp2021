@@ -1,4 +1,5 @@
 #!/usr/bin/python2
+# -*- coding: UTF-8 -*-
 # snakeoil.py
 # Chris X Edwards <snakeoil@xed.ch>
 # Snake Oil is a Python library for interfacing with a TORCS
