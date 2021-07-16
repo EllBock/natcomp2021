@@ -177,10 +177,10 @@ class Client():
             try:
                 sockdata, addr = self.so.recvfrom(1024)
             except socket.error, emsg:
-                # print "Waiting for server on %d............" % self.port
+                print "Waiting for server on %d............" % self.port
                 pass
             if '***identified***' in sockdata:
-                # print "Client connected on %d.............." % self.port
+                print "Client connected on %d.............." % self.port
                 break
 
     def parse_the_command_line(self):
@@ -494,13 +494,13 @@ class DriverAction():
     def __init__(self):
         self.actionstr = str()
         # "d" is for data dictionary.
-        self.d = {'accel': 0.2,
-                  'brake': 0,
-                  'clutch': 0,
-                  'gear': 1,
-                  'steer': 0,
-                  'focus': [-90, -45, 0, 45, 90],
-                  'meta': 0
+        self.d = {'accel': 0.2, # 0=none, 1=full throttle ACCELERATORE
+                  'brake': 0, # 0=none, 1=full brake FRENO
+                  'clutch': 0, # 0=none, 1=full clutch FRIZIONE
+                  'gear': 1, # {-1..6} set the gear {-1 inverse 0 neutral} MARCIA
+                  'steer': 0, # -1=full right, 1=full left… WTF is -1.89513? STERZATA
+                  'focus': [-90, -45, 0, 45, 90], # The middle of the 5deg fan of focus sensors. -90,90   ???
+                  'meta': 0 # 0=nothing, 1=ask server to restart the race
                   }
 
     def clip_to_limits(self):
