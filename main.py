@@ -3,11 +3,11 @@
 import multiprocessing
 import os
 import time
+from config import PROJECTDIR, TORCSDIR
 
-CONFIG_FILE = r'single_race_wheel_1.xml'
-STAGE = 2
+CONFIG_FILE = os.path.join(PROJECTDIR, "raceconfigs", "forza", "forza-inferno-0.xml")
 TRACK = "forzawin"
-TORCSDIR = r"C:\torcs"
+STAGE = 2
 TORCS_ERROR = 1
 
 def start_torcs(config_file, vision=False):
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     os.chdir(cwd)
     # Waiting until client finishes
     torcs.join()
-    print(torcs.exitcode)
+    print(f"Torcs returned {torcs.exitcode}")
     if torcs.exitcode == TORCS_ERROR:
         client.kill()
         raise Exception("Server cannot start!")
