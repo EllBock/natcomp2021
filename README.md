@@ -3,17 +3,17 @@
 ## TORCS usage
 
 ```
-$ torcs -t 100000 -nofuel -nolaptime -r <ABSOLUTE PATH TO race_config.xml>
+$ torcs -t 100000 -nofuel -r <ABSOLUTE PATH TO race_config.xml>
 ```
 
 Per correre
 ```
-$ python2 client.py --stage 2 --track <TRACK w/o .trackinfo>
+$ python2 client.py -s 2 -t <TRACK w/o .trackinfo> -R <FILE DEI RISULTATI>
 ```
 
 Per creare il file .trackinfo (impostare una gara da almeno 2 giri)
 ```
-$ python2 client.py --stage 0 --track <TRACK w/o .trackinfo>
+$ python2 client.py -s 0 -t <TRACK w/o .trackinfo>
 ```
 
 ----
