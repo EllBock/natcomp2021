@@ -57,6 +57,7 @@ import socket
 import json
 import sys
 import getopt
+import time
 
 PI = 3.14159265359
 
@@ -133,6 +134,7 @@ class Client():
         self.debug = False
         self.maxSteps = 100000  # 50steps/second
         self.pfilename = 'default_parameters.json'
+        self.resultsfname = time.strftime("%y%m%d-%H%M%S") + ".csv"
         self.parse_the_command_line()
         if H: self.host = H
         if p: self.port = p
@@ -190,9 +192,9 @@ class Client():
 
     def parse_the_command_line(self):
         try:
-            (opts, args) = getopt.getopt(sys.argv[1:], 'f:H:p:i:m:e:t:s:dhv',
+            (opts, args) = getopt.getopt(sys.argv[1:], 'f:H:p:i:m:e:t:s:R:dhv',
                                          ['host=', 'port=', 'id=', 'steps=',
-                                          'episodes=', 'file=', 'track=', 'stage=',
+                                          'episodes=', 'file=', 'track=', 'stage=', 'results='
                                           'debug', 'help', 'version'])
         except getopt.error, why:
             print 'getopt error: %s\n%s' % (why, usage)
@@ -220,6 +222,8 @@ class Client():
                     self.pfilename = opt[1]
                 if opt[0] == '-m' or opt[0] == '--steps':
                     self.maxSteps = int(opt[1])
+                if opt[0] == '-R' or opt[0] == '--results':
+                    self.resultsfname = opt[1]
                 if opt[0] == '-v' or opt[0] == '--version':
                     print '%s %s' % (sys.argv[0], version)
                     sys.exit(0)
