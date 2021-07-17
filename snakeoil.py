@@ -76,7 +76,8 @@ ophelp += ' --version, -v        Show current version.'
 usage = 'Usage: %s [ophelp [optargs]] \n' % sys.argv[0]
 usage = usage + ophelp
 version = "20130505-2"
-
+# Global variable to print a single time the "waiting" message
+print_waiting_message = True
 
 def clip(v, lo, hi):
     if v < lo:
@@ -149,6 +150,7 @@ class Client():
         self.setup_connection()
 
     def setup_connection(self):
+        global print_waiting_message
         # == Set Up UDP Socket ==
         try:
             self.so = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -178,7 +180,9 @@ class Client():
             try:
                 sockdata, addr = self.so.recvfrom(1024)
             except socket.error, emsg:
-                print "Waiting for server on %d............" % self.port
+                if print_waiting_message:
+                    print "Waiting for server on %d............" % self.port
+                    print_waiting_message = False
                 pass
             if '***identified***' in sockdata:
                 print "Client connected on %d.............." % self.port
