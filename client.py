@@ -847,7 +847,7 @@ if __name__ == "__main__":
 
     if not os.path.exists('results'):
         os.mkdir('results')
-    with open(os.path.join('results', C.resultsfname), "w") as f:
+    with open(C.resultsfname, "w") as f:
         f.write('\n'.join(output))
 
     C.shutdown()
