@@ -3,7 +3,6 @@
 import multiprocessing
 import os
 import time
-import psutil
 
 CONFIG_FILE = r'single_race_wheel_1.xml'
 STAGE = 2
