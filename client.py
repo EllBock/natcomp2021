@@ -4,7 +4,6 @@
 import sys
 import math
 import snakeoil
-import time
 import os
 
 FREQUENCY_SCALER = 10
@@ -781,9 +780,6 @@ def initialize_car(c):
 
 
 if __name__ == "__main__":
-    # Per salvare il file finale
-    currtime = time.strftime("%y%m%d-%H%M%S")
-
     T = Track()
     C = snakeoil.Client()
     if C.stage == 1 or C.stage == 2:
@@ -851,7 +847,7 @@ if __name__ == "__main__":
 
     if not os.path.exists('results'):
         os.mkdir('results')
-    with open(os.path.join('results', currtime + ".csv"), "w") as f:
+    with open(C.resultsfname, "w") as f:
         f.write('\n'.join(output))
 
     C.shutdown()
