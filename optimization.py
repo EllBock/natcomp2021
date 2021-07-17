@@ -1,10 +1,15 @@
 import json
+import multiprocessing
+
 from pygmo.core import de1220, algorithm, population
 import os
 import time
 import pygmo as pg
 from parametersKeys import parameters, minimumValue,maximumValue
+TEMP_FOLDER_PATH = 'ExampleRun17071638/temp'
+TEMP_PARAMETERS_FILE = os.path.join(TEMP_FOLDER_PATH, 'parameters')
 results_path = None
+
 
 def writeXtoJson(x):
 
@@ -29,7 +34,7 @@ def start_torcs(config_file):
 
 def start_client(port, warmup, track, results=None):
     # print("Launch Client (warmup mode).")
-    command = f'python2 client.py -p {port} -t {track} '
+    command = f'python2 client.py -p {port} -t {track} -f {} '
 
     if warmup:
         command += '-s 0 '
@@ -43,34 +48,45 @@ def start_client(port, warmup, track, results=None):
     return ret
 
 
-def executeGame(config, warmup_config, port):
+def executeGame(race_config, warmup_config, port):
     # Warm up phase
-    track_info_name = TEMP_FOLDER_PATH + warmupconfig.split('')[0] + '.trackinfo'
-    client = multiprocessing.Process(target=start_client, args=(port, True, track_info_name, 'results/useless'))
+    track_name = race_config.split('')[0]
+    trackinfo_file = os.path.join[TEMP_FOLDER_PATH, track_name + '.trackinfo']
+    client = multiprocessing.Process(target=start_client, args=(port, True, trackinfo_file, 'results/useless'))
     # TODO: Se non viene passato nulla a results, non salvarlo perchè non serve.
     client.start()
 
-    torcs = multiprocessing.Process(target=start_torcs, args=(CONFIG_FILE, False), name='primoTorcs')
+    torcs = multiprocessing.Process(target=start_torcs, args=(warmup_config, ))
     torcs.start()
+
+    client.join()
+    torcs.join()
+    if not os.path.isfile(trackinfo_file):
+        raise Exception(f'Error: {trackinfo_file} was not created.')
 
 
      # creating multiple processes
     client = multiprocessing.Process(target=start_client, args=(TRACK, ))
     client.start()
+    # Actual game execution
 
-    torcs = multiprocessing.Process(target=start_torcs, args=(CONFIG_FILE, False), name='primoTorcs')
-    torcs.start()
+    for i in range(2):
+        result1_file = os.path.join(TEMP_FOLDER_PATH, track_name + '_' +str(i) +'.csv')
+        client = multiprocessing.Process(target=start_client, args=(port, False, trackinfo_file, result1_file ))
+        client.start()
 
-    # Waiting until TORCS finishes
-    torcs.join()
-    if torcs.exitcode == TORCS_ERROR:
-        client.kill()
-        raise Exception("Server cannot start!")
+        torcs = multiprocessing.Process(target=start_torcs, args=(race_config, ))
+        torcs.start()
 
-    # Waiting until client finishes
-    client.join()
+        # Waiting until TORCS finishes
+        torcs.join()
+        if torcs.exitcode == 1: #TORCS_ERROR
+            client.kill()
+            raise Exception("Cannot start TORCS, (cannot bind socket). Aborting...")
 
-    print("Il client e torcs hanno finito")
+        # Waiting until client finishes
+        client.join()
+
 
 def computefitness():
     pass
@@ -88,13 +104,13 @@ class optimizationProblem:
         #first = multiprocessing.Process(target=executeGame, args=('forza_3001.xml','forza_warmup_3001.xml', 3001))
 
         #3002
-        #second = multiprocessing.Process(target=executeGame, args=('forza.xml',))
+        second = multiprocessing.Process(target=executeGame, args=('cgtrack2_3002.xml','cgtrack2_warmup_3002.xml', 3002))
 
         #3003
-        #third = multiprocessing.Process(target=executeGame, args=('forza.xml',))
+        third = multiprocessing.Process(target=executeGame, args=('etrack3_3003.xml','cgtrack2_warmup_3002.xml', 3003))
 
         #3004
-        #fourth = multiprocessing.Process(target=executeGame, args=('forza.xml',))
+        fourth = multiprocessing.Process(target=executeGame, args=('wheel1_3004.xml','cgtrack2_warmup_3002.xml', 3004))
 
         #first.start()
         #second.start()
@@ -152,5 +168,3 @@ if __name__ == "__main__":
 
     best_fitness = pop.get_f()[pop.best_idx()]
     print(best_fitness)
-
-
