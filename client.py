@@ -555,7 +555,7 @@ def brake_control(P, bi, sx, sy, ts, sk):
     if toofast < 0:
         return 0
     if toofast:
-        bo += P['brake'] * toofast / max(1, abs(sk))
+        # bo += P['brake'] * toofast / max(1, abs(sk))
         bo = 1
     if sk > P['seriousABS']: bo = 0
     if sx < 0: bo = 0

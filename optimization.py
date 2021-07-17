@@ -3,15 +3,15 @@ from pygmo.core import de1220, algorithm, population
 import os
 import time
 import pygmo as pg
-
+from parametersKeys import parameters, minimumValue,maximumValue
 results_path = None
 
 def writeXtoJson(x):
-    global parameters
+
     parametersdict = dict(zip(parameters, x))
     jsonPath = os.path.join(results_path,'temp','parameters.json')
 
-    with open(jsonPath,'wb') as f:
+    with open(jsonPath,'w') as f:
          json.dump(parametersdict, f)
 
 def start_torcs(config_file):
@@ -54,7 +54,6 @@ def executeGame(config, warmup_config, port):
     torcs.start()
 
 
-
      # creating multiple processes
     client = multiprocessing.Process(target=start_client, args=(TRACK, ))
     client.start()
@@ -86,36 +85,36 @@ class optimizationProblem:
         new_default_parameter = writeXtoJson(x)
 
         #3001
-        first = multiprocessing.Process(target=executeGame, args=('forza_3001.xml','forza_warmup_3001.xml', 3001))
+        #first = multiprocessing.Process(target=executeGame, args=('forza_3001.xml','forza_warmup_3001.xml', 3001))
 
         #3002
-        second = multiprocessing.Process(target=executeGame, args=('forza.xml',))
+        #second = multiprocessing.Process(target=executeGame, args=('forza.xml',))
 
         #3003
-        third = multiprocessing.Process(target=executeGame, args=('forza.xml',))
+        #third = multiprocessing.Process(target=executeGame, args=('forza.xml',))
 
         #3004
-        fourth = multiprocessing.Process(target=executeGame, args=('forza.xml',))
+        #fourth = multiprocessing.Process(target=executeGame, args=('forza.xml',))
 
-        first.start()
-        second.start()
-        third.start()
-        fourth.start()
+        #first.start()
+        #second.start()
+        #third.start()
+        #fourth.start()
 
-        first.join()
-        second.join()
-        third.join()
-        fourth.join()
+        #first.join()
+        #second.join()
+        #third.join()
+        #fourth.join()
 
-        fitness = computefitness()
+        #fitness = computefitness()
 
-        return fitness
+        return [sum(x * x)]
 
     # Deve ritornare una coppia di np array contenente il minimo e massimo valore che i parametri possono assumere
     # I due array sono ordinati rispetto all'ordine dei parametri passati alla funzione di fitness.
     # The problem dimension will be inferred by the return value of the get_bounds function.
     def get_bounds(self):
-        return ([-1, -1], [1, 1])
+        return (minimumValue, maximumValue)
 
     ############# Altri metodi sono opzionali
 
