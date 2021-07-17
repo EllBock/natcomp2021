@@ -8,6 +8,7 @@ CONFIG_FILE = r'single_race_wheel_1.xml'
 STAGE = 2
 TRACK = "forzawin"
 TORCSDIR = r"C:\torcs"
+TORCS_ERROR = 1
 
 def start_torcs(config_file, vision=False):
     print("Launch TORCS...")
@@ -38,7 +39,7 @@ def start_client(track, results=None):
 
 if __name__ == '__main__':
     # creating multiple processes
-    client = multiprocessing.Process(target=start_client, args=(TRACK))
+    client = multiprocessing.Process(target=start_client, args=TRACK)
     torcs = multiprocessing.Process(target=start_torcs, args=(CONFIG_FILE, False))
 
     # Start processes
@@ -52,9 +53,9 @@ if __name__ == '__main__':
     # Waiting until client finishes
     torcs.join()
     print(torcs.exitcode)
-    #if torcs.exitcode == TORCS_ERROR:
-    #    client.kill()
-    #    raise Exception("Server cannot start!")
+    if torcs.exitcode == TORCS_ERROR:
+        client.kill()
+        raise Exception("Server cannot start!")
     client.join()
 
     print("Il client e torcs hanno finito")
