@@ -12,14 +12,11 @@ TORCS_ERROR = 1
 
 def start_torcs(config_file, vision=False):
     print("Launch TORCS...")
-    # Kill other instances
-    #if "wtorcs" in (p.name() for p in psutil.process_iter()):
-    #    os.system('tskill wtorcs')
-
-    #time.sleep(0.5)
-
     print("Using " + config_file)
-    print("CWD: " + os.getcwd())
+
+    # Change the current working directory
+    os.chdir(TORCSDIR)
+
     if vision is True:
         ret = os.system('wtorcs.exe -vision -t 100000 -r ' + config_file)
     else:
@@ -33,29 +30,25 @@ def start_client(track, results=None):
         ret = os.system(f"python2 client.py -s 2 -t {track}")
     else:
         ret = os.system(f"python2 client.py -s 2 -t {track} -R {results}")
-
     exit(ret)
 
 
 if __name__ == '__main__':
     # creating multiple processes
-    client = multiprocessing.Process(target=start_client, args=TRACK)
-    torcs = multiprocessing.Process(target=start_torcs, args=(CONFIG_FILE, False))
-
-    # Start processes
+    client = multiprocessing.Process(target=start_client, args=(TRACK, ))
     client.start()
-    time.sleep(0.5)
-    # Change the current working directory
-    cwd = os.getcwd()
-    os.chdir(TORCSDIR)
+
+    torcs = multiprocessing.Process(target=start_torcs, args=(CONFIG_FILE, False))
     torcs.start()
-    os.chdir(cwd)
-    # Waiting until client finishes
+
+    # Waiting until TORCS finishes
     torcs.join()
     print(f"Torcs returned {torcs.exitcode}")
     if torcs.exitcode == TORCS_ERROR:
         client.kill()
         raise Exception("Server cannot start!")
+
+    # Waiting until client finishes
     client.join()
 
     print("Il client e torcs hanno finito")
