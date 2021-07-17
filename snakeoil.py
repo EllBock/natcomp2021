@@ -58,6 +58,7 @@ import json
 import sys
 import getopt
 import time
+import os
 
 PI = 3.14159265359
 
@@ -134,7 +135,7 @@ class Client():
         self.debug = False
         self.maxSteps = 100000  # 50steps/second
         self.pfilename = 'default_parameters.json'
-        self.resultsfname = time.strftime("%y%m%d-%H%M%S") + ".csv"
+        self.resultsfname = os.path.join("results", time.strftime("%y%m%d-%H%M%S") + ".csv")
         self.parse_the_command_line()
         if H: self.host = H
         if p: self.port = p
