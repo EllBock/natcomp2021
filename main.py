@@ -8,6 +8,7 @@ import psutil
 CONFIG_FILE = r'single_race_wheel_1.xml'
 STAGE = 2
 TRACK = "forzawin"
+TORCSDIR = r"C:\torcs"
 
 def start_torcs(config_file, vision=False):
     print("Launch TORCS...")
@@ -45,9 +46,10 @@ if __name__ == '__main__':
     client.start()
     time.sleep(0.5)
     # Change the current working directory
-    os.chdir('C:\\Program Files (x86)\\torcs')
+    cwd = os.getcwd()
+    os.chdir(TORCSDIR)
     torcs.start()
-
+    os.chdir(cwd)
     # Waiting until client finishes
     torcs.join()
     print(torcs.exitcode)
