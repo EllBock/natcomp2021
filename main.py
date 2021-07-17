@@ -6,32 +6,39 @@ import time
 import psutil
 
 CONFIG_FILE = r'single_race_wheel_1.xml'
-
+STAGE = 2
+TRACK = "forzawin"
 
 def start_torcs(config_file, vision=False):
     print("Launch TORCS...")
     # Kill other instances
-    if "wtorcs" in (p.name() for p in psutil.process_iter()):
-        os.system('tskill wtorcs')
+    #if "wtorcs" in (p.name() for p in psutil.process_iter()):
+    #    os.system('tskill wtorcs')
 
-    time.sleep(0.5)
+    #time.sleep(0.5)
 
     print("Using " + config_file)
     print("CWD: " + os.getcwd())
     if vision is True:
-        os.system('wtorcs.exe -vision -t 100000 -r ' + config_file)
+        ret = os.system('wtorcs.exe -vision -t 100000 -r ' + config_file)
     else:
-        os.system('wtorcs -t 100000 -r ' + config_file)
-    time.sleep(0.5)
+        ret = os.system('wtorcs -t 100000 -r ' + config_file)
+
+    exit(ret)
 
 
-def start_client():
-    os.system('python2 client.py')
+def start_client(track, results=None):
+    if results is None:
+        ret = os.system(f"python2 client.py -s 2 -t {track}")
+    else:
+        ret = os.system(f"python2 client.py -s 2 -t {track} -R {results}")
+
+    exit(ret)
 
 
 if __name__ == '__main__':
     # creating multiple processes
-    client = multiprocessing.Process(target=start_client)
+    client = multiprocessing.Process(target=start_client, args=(TRACK))
     torcs = multiprocessing.Process(target=start_torcs, args=(CONFIG_FILE, False))
 
     # Start processes
@@ -42,6 +49,11 @@ if __name__ == '__main__':
     torcs.start()
 
     # Waiting until client finishes
-    client.join()
     torcs.join()
+    print(torcs.exitcode)
+    #if torcs.exitcode == TORCS_ERROR:
+    #    client.kill()
+    #    raise Exception("Server cannot start!")
+    client.join()
+
     print("Il client e torcs hanno finito")
