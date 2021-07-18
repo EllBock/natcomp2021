@@ -527,7 +527,10 @@ def throttle_control(P, ai, ts, sx, sl, sy, ang, steer):
         else:
             ts = min(ts, okmaxspeed4steer)
         tooslow = ts - sx
-    ao = 2 / (1 + math.exp(-tooslow)) - 1
+    try:
+        ao = 2 / (1 + math.exp(-tooslow)) - 1
+    except OverflowError:
+        ao = 2 / (1 + 0.000001) - 1
     ao -= abs(sl) * P['slipdec']
     spincut = P['spincutint'] - P['spincutslp'] * abs(sy)
     spincut = snakeoil.clip(spincut, P['spincutclip'], 1)

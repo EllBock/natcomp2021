@@ -46,7 +46,7 @@ parameters = [ 'backward',
                'wheeldia',
                'wwlim']
 
-
+notOptimziedParameters = {"brake": 0.00011033489913893834,  "backontracksx": 70.850623711341527}
 #parameters2 = ['backontracksx', 'backward', 'brake', 'brakingpacefast', 'brakingpaceslow', 'carmaxvisib', 'carmin', 'clutchslip', 'clutchspin', 'consideredstr8', 'dnsh1rpm', 'dnsh2rpm', 'dnsh3rpm', 'dnsh4rpm', 'dnsh5rpm', 'fullstis', 'fullstmaxsx', 'ignoreinfleA', 'obvious', 'obviousbase', 'offroad', 'oksyp', 'pointingahead', 's2cen', 's2sen', 'safeatanyspeed', 'seriousABS', 'skidsev1', 'slipdec', 'sortofontrack', 'spincutclip', 'spincutint', 'spincutslp', 'st', 'stC', 'steer2edge', 'str8thresh', 'stst', 'sxappropriatest1', 'sxappropriatest2', 'sycon1', 'sycon2', 'upsh2rpm', 'upsh3rpm', 'upsh4rpm', 'upsh5rpm', 'upsh6rpm', 'wheeldia', 'wwlim']
 
 minimumValue = [

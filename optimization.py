@@ -5,7 +5,7 @@ from pygmo.core import de1220, algorithm, population
 import os
 import time
 import pygmo as pg
-from parametersKeys import parameters, minimumValue,maximumValue
+from parametersKeys import parameters, minimumValue,maximumValue,notOptimziedParameters
 import config
 
 
@@ -23,8 +23,8 @@ def malformed_trackinfo(track):
 def writeXtoJson(x):
 
     parametersdict = dict(zip(parameters, x))
+    parametersdict.update(notOptimziedParameters)
     jsonPath = os.path.join(resultsPath,'temp','parameters.json')
-
     with open(jsonPath,'w') as f:
          json.dump(parametersdict, f)
 

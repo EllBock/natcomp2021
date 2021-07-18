@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pygmo
 
-FILENAME = "results/210712-154723.csv"
+FILENAME = "results/forza_1.csv"
 KEYS = [
         # 'iteration',
         # 'curLapTime',
@@ -73,11 +73,17 @@ def calculate_race_time(csv_col_dict: dict):
     delta = .0
     csv_col_dict['raceTime'] = []
     csv_col_dict['raceTime'].append(csv_col_dict['curLapTime'][0])
+    csv_col_dict['lap'] = []
+    lap = 1
+    csv_col_dict['lap'].append(lap)
 
     for i in range(1, len(csv_col_dict['curLapTime'])):
         if csv_col_dict['curLapTime'][i] < csv_col_dict['curLapTime'][i-1]:
             delta += csv_col_dict['lastLapTime'][i]
+            lap += 1
+
         csv_col_dict['raceTime'].append(csv_col_dict['curLapTime'][i] + delta)
+        csv_col_dict['lap'].append(lap)
 
     return csv_col_dict
 
@@ -115,6 +121,7 @@ if __name__ == "__main__":
 
     alpha = 0.25
     beta = 1
+
     score = total_time + alpha * damage + beta * offroad
     print(f"Score: {score}")
 
