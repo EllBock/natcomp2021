@@ -845,8 +845,6 @@ if __name__ == "__main__":
     C.R.d['meta'] = 1
     C.respond_to_server()
 
-    if not os.path.exists('results'):
-        os.mkdir('results')
     with open(C.resultsfname, "w") as f:
         f.write('\n'.join(output))
 
