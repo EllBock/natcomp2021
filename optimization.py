@@ -1,12 +1,17 @@
 import json
+import math
 import multiprocessing
+import pickle
 
+import numpy as np
 from pygmo.core import de1220, algorithm, population
 import os
 import time
 import pygmo as pg
 from parametersKeys import parameters, minimumValue,maximumValue,notOptimziedParameters
 import config
+import utils
+
 
 
 def malformed_trackinfo(track):
@@ -20,13 +25,18 @@ def malformed_trackinfo(track):
 
     return False
 
-def writeXtoJson(x):
+
+def writeXtoJson(x, filename=None):
 
     parametersdict = dict(zip(parameters, x))
     parametersdict.update(notOptimziedParameters)
-    jsonPath = os.path.join(resultsPath,'temp','parameters.json')
+    if filename is None:
+        jsonPath = os.path.join(resultsPath,'temp','parameters.json')
+    else:
+        jsonPath = filename
     with open(jsonPath,'w') as f:
          json.dump(parametersdict, f)
+
 
 def start_torcs(config_file):
     # print(f"Launch TORCS using {config_file}.")
@@ -36,7 +46,7 @@ def start_torcs(config_file):
 
     # Start TORCS
     command = f'wtorcs -t 100000 -r {config_file}'
-    print('TORCS - ' + command)
+    # print('TORCS - ' + command)
     ret = os.system(command)
 
     return ret
@@ -53,7 +63,7 @@ def start_client(port, warmup, tempFolder, trackname, tempParametersFile, result
         if not malformed_trackinfo(trackname):
             command += f' -s 2 -t {trackname}'
 
-    print('CLIENT - ' + command)
+    # print('CLIENT - ' + command)
     ret = os.system(command)
     return ret
 
@@ -64,7 +74,7 @@ def executeGame(race_config, warmup_config, port, config_path, resultsPath):
     tempParametersFile = os.path.join(tempFolder, 'parameters.json')
 
     # Warm up phase
-    print("*********************WARM UP PHASE")
+    # print("*********************WARM UP PHASE")
     track_name = race_config.split('-')[0]
     client = multiprocessing.Process(target=start_client, args=(port, True, tempFolder, track_name, tempParametersFile, track_name+'_warmup.csv'))
     # TODO: Se non viene passato nulla a results, non salvarlo perchè non serve.
@@ -83,7 +93,7 @@ def executeGame(race_config, warmup_config, port, config_path, resultsPath):
 
     # Actual game execution
     for i in range(2):
-        print(f"************************RACING PHASE {i+1}")
+        # print(f"************************RACING PHASE {i+1}")
         result_file = track_name + '_' +str(i) +'.csv'
         client = multiprocessing.Process(target=start_client, args=(port, False, tempFolder, track_name, tempParametersFile, result_file))
         client.start()
@@ -102,22 +112,23 @@ def executeGame(race_config, warmup_config, port, config_path, resultsPath):
         client.join()
 
 
-def computefitness():
 
-
-    pass
 
 
 class optimizationProblem:
 
     def __init__(self, resultsPath):
         self.resultsPath = resultsPath
+        self.resultsFileNames = ['cgtrack2_0.csv','cgtrack2_1.csv', 'etrack3_0.csv', 'etrack3_1.csv', 'forza_0.csv', 'forza_1.csv' , 'wheel1_0.csv' , 'wheel1_1.csv' ]
+        self.alfa = 0.25
+        self.beta = 1
 
     # Deve ritornare un vettore (anche se il risultato è uno scalare) contenente la funzione di fitness valutata
     # nel punto x ( numpy array) .
     def fitness(self, x):
+        start = time.time()
 
-        new_default_parameter = writeXtoJson(x)
+        writeXtoJson(x)
 
         #3001
         first = multiprocessing.Process(target=executeGame, args=('forza-inferno-0.xml','forza-solo-0.xml', 3001, config.FORZADIR, self.resultsPath))
@@ -141,10 +152,13 @@ class optimizationProblem:
         third.join()
         fourth.join()
 
-        print('Fatto')
-        #fitness = computefitness()
 
-        return [sum(x * x)]
+        fitness = self.computefitness()
+        # end time
+        end = time.time()
+        # total time taken
+        print(f"Runtime of the program is {end - start}")
+        return fitness
 
     # Deve ritornare una coppia di np array contenente il minimo e massimo valore che i parametri possono assumere
     # I due array sono ordinati rispetto all'ordine dei parametri passati alla funzione di fitness.
@@ -153,6 +167,23 @@ class optimizationProblem:
         return (minimumValue, maximumValue)
 
     ############# Altri metodi sono opzionali
+
+    def computefitness(self):
+        # leggere i file csv e prelevare il danno, il tempo fuoripista, e la velocità media
+        tempDirectory = os.path.join(self.resultsPath,'temp')
+        score_list = np.array([])
+        for filename in self.resultsFileNames:
+            d = utils.csv_to_column_dict(os.path.join(tempDirectory, filename))
+            d = utils.calculate_race_time(d)
+            offroad = utils.calculate_offroad_time(d)
+            score = d['distRaced'][-1] / d['raceTime'][-1] - self.alfa * d['damage'][-1] - self.beta * offroad / d['raceTime'][-1]
+            score_list = np.append(score_list, score)
+
+        fitness = np.average(score_list)
+
+        fitness = math.exp(-fitness)
+        return np.array([fitness])
+
 
 def initializeDirectory():
 
@@ -198,3 +229,26 @@ if __name__ == "__main__":
 
     best_fitness = pop.get_f()[pop.best_idx()]
     print(best_fitness)
+
+
+
+
+    savedDictionary = {}
+
+    savedDictionary['log'] = log
+    savedDictionary['pop'] = pop
+    parametersdict = dict(zip(parameters, pop.champion_x))
+    parametersdict.update(notOptimziedParameters)
+    savedDictionary['best_parameters'] = parametersdict
+    jsonPath = os.path.join(resultsPath, "champion.json")
+    writeXtoJson(pop.champion_x, filename=jsonPath)
+    savedDictionary['pupulationSize'] = pupulationSize
+    savedDictionary['numberOfGenerations'] = numberOfGenerations
+    savedDictionary['allowedVariants'] = allowedVariants
+
+
+
+    with open('finalPopulation.pickle','wb') as f:
+        pickle.dump(savedDictionary,f)
+
+
