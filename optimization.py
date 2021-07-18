@@ -120,8 +120,8 @@ class optimizationProblem:
     def __init__(self, resultsPath):
         self.resultsPath = resultsPath
         self.resultsFileNames = ['cgtrack2_0.csv','cgtrack2_1.csv', 'etrack3_0.csv', 'etrack3_1.csv', 'forza_0.csv', 'forza_1.csv' , 'wheel1_0.csv' , 'wheel1_1.csv' ]
-        self.alfa = 0.25
-        self.beta = 1
+        self.alfa = 0.05
+        self.beta = 150
 
     # Deve ritornare un vettore (anche se il risultato è uno scalare) contenente la funzione di fitness valutata
     # nel punto x ( numpy array) .
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     # Initialize the problem
     problem = optimizationProblem(resultsPath)
     pgOptimizationProblem = pg.problem(problem)
-    #print(pgOptimizationProblem)
+    print(pgOptimizationProblem)
 
     # Algorithm parameters
     IDEvariant = 2
@@ -217,6 +217,7 @@ if __name__ == "__main__":
     # Initialize the algorithm
     algo = algorithm(de1220(gen=numberOfGenerations, variant_adptv=IDEvariant, allowed_variants=allowedVariants))
     algo.set_verbosity(1)
+
 
     # Run the algorithm
     pop = population(pgOptimizationProblem, pupulationSize)
@@ -245,10 +246,11 @@ if __name__ == "__main__":
     savedDictionary['pupulationSize'] = pupulationSize
     savedDictionary['numberOfGenerations'] = numberOfGenerations
     savedDictionary['allowedVariants'] = allowedVariants
-
+    savedDictionary['alfa'] = 0.05
+    savedDictionary['beta'] = 150
 
 
     with open('finalPopulation.pickle','wb') as f:
-        pickle.dump(savedDictionary,f)
+        pickle.dump(savedDictionary, f)
 
 
