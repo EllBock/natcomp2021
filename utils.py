@@ -3,7 +3,7 @@
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
-import pygmo
+
 
 FILENAME = "results/forza_1.csv"
 KEYS = [
