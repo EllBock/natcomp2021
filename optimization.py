@@ -8,7 +8,7 @@ from pygmo.core import de1220, algorithm, population
 import os
 import time
 import pygmo as pg
-from parametersKeys import parameters, minimumValue,maximumValue,notOptimziedParameters
+from parametersKeys import parameters, minimumValue,maximumValue,notOptimzedParameters, defaultSnakeOilParameters
 import config
 import utils
 
@@ -29,7 +29,7 @@ def malformed_trackinfo(track):
 def writeXtoJson(x, filename=None):
 
     parametersdict = dict(zip(parameters, x))
-    parametersdict.update(notOptimziedParameters)
+    parametersdict.update(notOptimzedParameters)
     if filename is None:
         jsonPath = os.path.join(resultsPath,'temp','parameters.json')
     else:
@@ -179,9 +179,9 @@ class optimizationProblem:
             score = d['distRaced'][-1] / d['raceTime'][-1] - self.alfa * d['damage'][-1] - self.beta * offroad / d['raceTime'][-1]
             score_list = np.append(score_list, score)
 
-        fitness = np.average(score_list)
+        fitness = - np.average(score_list)
 
-        fitness = math.exp(-fitness)
+
         return np.array([fitness])
 
 
@@ -209,18 +209,26 @@ if __name__ == "__main__":
 
     # Algorithm parameters
     IDEvariant = 2
-    numberOfGenerations = 200
-    pupulationSize = 380 # Circa 8 volte la dimensionalità del problema (47)
-    allowedVariants = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
-                       18]  # Default [2, 3, 7, 10, 13, 14, 15, 16]
+    numberOfGenerations = 1
+    populationSize = 7 # Circa 3 volte la dimensionalità del problema (47)
+    snakeoilPopSize = math.floor(populationSize * 0.80)  # circa 80 % della total population
+    randomPopulationSize = populationSize - snakeoilPopSize # circa 20 % della total population
+
 
     # Initialize the algorithm
-    algo = algorithm(de1220(gen=numberOfGenerations, variant_adptv=IDEvariant, allowed_variants=allowedVariants))
+    algo = algorithm(de1220(gen=numberOfGenerations, variant_adptv=IDEvariant,ftol=-float("Inf")))
     algo.set_verbosity(1)
 
-
     # Run the algorithm
-    pop = population(pgOptimizationProblem, pupulationSize)
+    pop = population(pgOptimizationProblem, randomPopulationSize)
+
+    # Populate the remaining population with snakeoils default parameters
+    snakeoilParameters = defaultSnakeOilParameters.values()
+
+    for i in range(snakeoilPopSize):
+        pop.push_back(snakeoilParameters)
+
+    # Start the evolution
     pop = algo.evolve(pop)
 
     # Take the results
@@ -231,21 +239,18 @@ if __name__ == "__main__":
     best_fitness = pop.get_f()[pop.best_idx()]
     print(best_fitness)
 
-
-
-
     savedDictionary = {}
 
     savedDictionary['log'] = log
     savedDictionary['pop'] = pop
     parametersdict = dict(zip(parameters, pop.champion_x))
-    parametersdict.update(notOptimziedParameters)
+    parametersdict.update(notOptimzedParameters)
     savedDictionary['best_parameters'] = parametersdict
     jsonPath = os.path.join(resultsPath, "champion.json")
     writeXtoJson(pop.champion_x, filename=jsonPath)
-    savedDictionary['pupulationSize'] = pupulationSize
+    savedDictionary['pupulationSize'] = populationSize
     savedDictionary['numberOfGenerations'] = numberOfGenerations
-    savedDictionary['allowedVariants'] = allowedVariants
+
     savedDictionary['alfa'] = 0.05
     savedDictionary['beta'] = 150
 
