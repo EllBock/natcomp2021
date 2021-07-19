@@ -16,14 +16,14 @@ import utils
 
 def malformed_trackinfo(track):
 
-    with open(track + '.trackinfo', 'r')as f:
-        lines = f.readlines()
-        for l in lines:
-            data = l.strip().split(' ')
-            if len(data) < 4:
-                return True
+   # with open(track + '.trackinfo', 'r')as f:
+   #     lines = f.readlines()
+   #     for l in lines:
+   #         data = l.strip().split(' ')
+   #         if len(data) < 4:
+   #             return True
 
-    return False
+    return True
 
 
 def writeXtoJson(x, filename=None):
@@ -73,14 +73,14 @@ def executeGame(warmup_config, warmup_port,race_config, race_port, config_path, 
     tempFolder = os.path.join(resultsPath, 'temp')
     tempParametersFile = os.path.join(tempFolder, 'parameters.json')
 
-    # Warm up phase
     # print("*********************WARM UP PHASE")
     track_name = race_config.split('-')[0]
 
+
     # Start TORCS warmup
-    warmup_config_path = os.path.join(config_path, warmup_config)
-    torcs_warmup = multiprocessing.Process(target=start_torcs, args=(warmup_config_path, ))
-    torcs_warmup.start()
+    # warmup_config_path = os.path.join(config_path, warmup_config)
+    # torcs_warmup = multiprocessing.Process(target=start_torcs, args=(warmup_config_path, ))
+    # torcs_warmup.start()
 
     # Start TORCS race
     race_config_path = os.path.join(config_path, race_config)
@@ -88,16 +88,16 @@ def executeGame(warmup_config, warmup_port,race_config, race_port, config_path, 
     torcs_race.start()
 
     # Start warmup client
-    client = multiprocessing.Process(target=start_client, args=(warmup_port, True, tempFolder, track_name, tempParametersFile, track_name+'_warmup.csv'))
+    #client = multiprocessing.Process(target=start_client, args=(warmup_port, True, tempFolder, track_name, tempParametersFile, track_name+'_warmup.csv'))
     # TODO: Se non viene passato nulla a results, non salvarlo perchè non serve.
-    client.start()
+    # client.start()
 
-    client.join()
-    torcs_warmup.join()
+    # client.join()
+    # torcs_warmup.join()
 
-    trackinfo_file = os.path.join(tempFolder, track_name+'.trackinfo')
-    if not os.path.isfile(trackinfo_file):
-        raise Exception(f'Error: {trackinfo_file} was not created.')
+    # trackinfo_file = os.path.join(tempFolder, track_name+'.trackinfo')
+    # if not os.path.isfile(trackinfo_file):
+    #    raise Exception(f'Error: {trackinfo_file} was not created.')
 
     # Actual game execution
     # print(f"************************RACING PHASE ")
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     jsonPath = os.path.join(resultsPath, "champion.json")
     writeXtoJson(pop.champion_x, filename=jsonPath)
     savedDictionary['pupulationSize'] = populationSize
-    savedDictionary['numberOfGenerations'] = numberOfGeneration
+    savedDictionary['numberOfGenerations'] = numberOfGenerations
     savedDictionary['alfa'] = problem.alfa
     savedDictionary['beta'] = problem.beta
 
