@@ -121,16 +121,17 @@ class optimizationProblem:
     def __init__(self, resultsPath):
         self.resultsPath = resultsPath
         self.resultsFileNames = ['cgtrack2.csv', 'etrack3.csv', 'forza.csv', 'wheel1.csv']
+        #self.resultsFileNames = [ 'forza.csv' ]
         self.alfa = 0.05
         self.beta = 150
 
     # Deve ritornare un vettore (anche se il risultato è uno scalare) contenente la funzione di fitness valutata
     # nel punto x ( numpy array) .
     def fitness(self, x):
+
         start = time.time()
 
         writeXtoJson(x)
-
 
         first = multiprocessing.Process(target=executeGame, args=('forza-solo-0.xml', 3001, 'forza-inferno-9.xml', 3010, config.FORZADIR, self.resultsPath))
         second = multiprocessing.Process(target=executeGame, args=('cgtrack2-solo-1.xml', 3002, 'cgtrack2-inferno-8.xml',3009, config.CGTRACKDIR, self.resultsPath))
@@ -149,6 +150,8 @@ class optimizationProblem:
 
 
         fitness = self.computefitness()
+
+
         # end time
         end = time.time()
         # total time taken
@@ -204,14 +207,15 @@ if __name__ == "__main__":
 
     # Algorithm parameters
     IDEvariant = 2
-    numberOfGenerations = 1
+    numberOfGenerations = 3
+    SINGLE_GENERATION = 1
     populationSize = 7 # Circa 3 volte la dimensionalità del problema (47)
     snakeoilPopSize = math.floor(populationSize * 0.80)  # circa 80 % della total population
     randomPopulationSize = populationSize - snakeoilPopSize # circa 20 % della total population
 
 
     # Initialize the algorithm
-    algo = algorithm(de1220(gen=numberOfGenerations, variant_adptv=IDEvariant,ftol=-float("Inf")))
+    algo = algorithm(de1220(gen=SINGLE_GENERATION, variant_adptv=IDEvariant,ftol=-float("Inf"), memory=True))
     algo.set_verbosity(1)
 
     # Run the algorithm
@@ -224,29 +228,31 @@ if __name__ == "__main__":
         pop.push_back(snakeoilParameters)
 
     # Start the evolution
-    pop = algo.evolve(pop)
+    for i in range(1, numberOfGenerations + 1):
 
-    # Take the results
-    print(f'Best parameters found are {pop.champion_x} and its score is {pop.champion_f}')
-    uda = algo.extract(de1220)
-    log = uda.get_log()
+        pop = algo.evolve(pop)
 
-    best_fitness = pop.get_f()[pop.best_idx()]
-    print(best_fitness)
+        uda = algo.extract(de1220)
+        log = uda.get_log()
+        print(f'Iterazione {i} - {log[0]}')
+        savedDictionary = {}
+        picklePath = os.path.join(resultsPath, f'resultsGeneration_{i}.pickle')
+        jsonPath = os.path.join(resultsPath, f"championOfGeneration_{i}.json")
+        savedDictionary['algorithm'] = algo
+        savedDictionary['pop'] = pop
+        parametersdict = dict(zip(parameters, pop.champion_x))
+        parametersdict.update(notOptimzedParameters)
+        savedDictionary['best_parameters'] = parametersdict
+        writeXtoJson(pop.champion_x, filename=jsonPath)
+        savedDictionary['pupulationSize'] = populationSize
+        savedDictionary['numberOfGenerations'] = numberOfGenerations
+        savedDictionary['alfa'] = problem.alfa
+        savedDictionary['beta'] = problem.beta
 
-    savedDictionary = {}
 
-    savedDictionary['log'] = log
-    savedDictionary['pop'] = pop
-    parametersdict = dict(zip(parameters, pop.champion_x))
-    parametersdict.update(notOptimzedParameters)
-    savedDictionary['best_parameters'] = parametersdict
-    jsonPath = os.path.join(resultsPath, "champion.json")
-    writeXtoJson(pop.champion_x, filename=jsonPath)
-    savedDictionary['pupulationSize'] = populationSize
-    savedDictionary['numberOfGenerations'] = numberOfGenerations
-    savedDictionary['alfa'] = problem.alfa
-    savedDictionary['beta'] = problem.beta
+        with open(picklePath, 'wb') as f:
+            pickle.dump(savedDictionary, f)
 
-    with open('finalPopulation.pickle', 'wb') as f:
-        pickle.dump(savedDictionary, f)
+
+
+
