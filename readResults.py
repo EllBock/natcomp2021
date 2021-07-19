@@ -44,5 +44,5 @@ def readResults(filepath):
     plt.show()
 
 if __name__ == "__main__":
-    readResults(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-153114\resultsGeneration_3.pickle")
+    readResults(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-171944\resultsGeneration_1.pickle")
 

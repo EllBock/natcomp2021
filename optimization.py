@@ -207,9 +207,9 @@ if __name__ == "__main__":
 
     # Algorithm parameters
     IDEvariant = 2
-    numberOfGenerations = 3
+    numberOfGenerations = 100
     SINGLE_GENERATION = 1
-    populationSize = 7 # Circa 3 volte la dimensionalità del problema (47)
+    populationSize = 23 # Circa 3 volte la dimensionalità del problema (47)
     snakeoilPopSize = math.floor(populationSize * 0.80)  # circa 80 % della total population
     randomPopulationSize = populationSize - snakeoilPopSize # circa 20 % della total population
 
@@ -221,11 +221,14 @@ if __name__ == "__main__":
     # Run the algorithm
     pop = population(pgOptimizationProblem, randomPopulationSize)
 
-    # Populate the remaining population with snakeoils default parameters
-    snakeoilParameters = defaultSnakeOilParameters.values()
+    # Populate the remaining population with snakeoils default parameters\
+    x_snakeoil = []
+
+    for key in parameters:
+        x_snakeoil.append(defaultSnakeOilParameters[key])
 
     for i in range(snakeoilPopSize):
-        pop.push_back(snakeoilParameters)
+        pop.push_back(x_snakeoil)
 
     # Start the evolution
     for i in range(1, numberOfGenerations + 1):
