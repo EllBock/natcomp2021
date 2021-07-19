@@ -68,7 +68,7 @@ def start_client(port, warmup, tempFolder, trackname, tempParametersFile, result
     return ret
 
 
-def executeGame(race_config, warmup_config, port, config_path, resultsPath):
+def executeGame(warmup_config, warmup_port,race_config, race_port, config_path, resultsPath):
 
     tempFolder = os.path.join(resultsPath, 'temp')
     tempParametersFile = os.path.join(tempFolder, 'parameters.json')
@@ -76,50 +76,51 @@ def executeGame(race_config, warmup_config, port, config_path, resultsPath):
     # Warm up phase
     # print("*********************WARM UP PHASE")
     track_name = race_config.split('-')[0]
-    client = multiprocessing.Process(target=start_client, args=(port, True, tempFolder, track_name, tempParametersFile, track_name+'_warmup.csv'))
+
+    # Start TORCS warmup
+    warmup_config_path = os.path.join(config_path, warmup_config)
+    torcs_warmup = multiprocessing.Process(target=start_torcs, args=(warmup_config_path, ))
+    torcs_warmup.start()
+
+    # Start TORCS race
+    race_config_path = os.path.join(config_path, race_config)
+    torcs_race = multiprocessing.Process(target=start_torcs, args=(race_config_path, ))
+    torcs_race.start()
+
+    # Start warmup client
+    client = multiprocessing.Process(target=start_client, args=(warmup_port, True, tempFolder, track_name, tempParametersFile, track_name+'_warmup.csv'))
     # TODO: Se non viene passato nulla a results, non salvarlo perchè non serve.
     client.start()
 
-    warmup_config_path = os.path.join(config_path, warmup_config)
-    torcs = multiprocessing.Process(target=start_torcs, args=(warmup_config_path, ))
-    torcs.start()
-
     client.join()
-    torcs.join()
+    torcs_warmup.join()
 
     trackinfo_file = os.path.join(tempFolder, track_name+'.trackinfo')
     if not os.path.isfile(trackinfo_file):
         raise Exception(f'Error: {trackinfo_file} was not created.')
 
     # Actual game execution
-    for i in range(2):
-        # print(f"************************RACING PHASE {i+1}")
-        result_file = track_name + '_' +str(i) +'.csv'
-        client = multiprocessing.Process(target=start_client, args=(port, False, tempFolder, track_name, tempParametersFile, result_file))
-        client.start()
+    # print(f"************************RACING PHASE ")
+    result_file = track_name + '.csv'
+    client = multiprocessing.Process(target=start_client, args=(race_port, False, tempFolder, track_name, tempParametersFile, result_file))
+    client.start()
 
-        race_config_path = os.path.join(config_path, race_config)
-        torcs = multiprocessing.Process(target=start_torcs, args=(race_config_path, ))
-        torcs.start()
+    # Waiting until TORCS finishes
+    torcs_race.join()
 
-        # Waiting until TORCS finishes
-        torcs.join()
-        if torcs.exitcode == 1: #TORCS_ERROR
-            client.kill()
-            raise Exception("Cannot start TORCS, (cannot bind socket). Aborting...")
+    if torcs_race.exitcode == 1: #TORCS_ERROR
+        client.kill()
+        raise Exception("Cannot start TORCS, (cannot bind socket). Aborting...")
 
-        # Waiting until client finishes
-        client.join()
-
-
-
+    # Waiting until client finishes
+    client.join()
 
 
 class optimizationProblem:
 
     def __init__(self, resultsPath):
         self.resultsPath = resultsPath
-        self.resultsFileNames = ['cgtrack2_0.csv','cgtrack2_1.csv', 'etrack3_0.csv', 'etrack3_1.csv', 'forza_0.csv', 'forza_1.csv' , 'wheel1_0.csv' , 'wheel1_1.csv' ]
+        self.resultsFileNames = ['cgtrack2.csv', 'etrack3.csv', 'forza.csv', 'wheel1.csv']
         self.alfa = 0.05
         self.beta = 150
 
@@ -130,17 +131,11 @@ class optimizationProblem:
 
         writeXtoJson(x)
 
-        #3001
-        first = multiprocessing.Process(target=executeGame, args=('forza-inferno-0.xml','forza-solo-0.xml', 3001, config.FORZADIR, self.resultsPath))
 
-        #3002
-        second = multiprocessing.Process(target=executeGame, args=('cgtrack2-inferno-1.xml','cgtrack2-solo-1.xml', 3002, config.CGTRACKDIR, self.resultsPath))
-
-        #3003
-        third = multiprocessing.Process(target=executeGame, args=('etrack3-inferno-2.xml','etrack3-solo-2.xml', 3003, config.ETRACKDIR,self.resultsPath))
-
-        #3004
-        fourth = multiprocessing.Process(target=executeGame, args=('wheel1-inferno-3.xml','wheel1-solo-3.xml', 3004, config.WHEELDIR, self.resultsPath))
+        first = multiprocessing.Process(target=executeGame, args=('forza-solo-0.xml', 3001, 'forza-inferno-9.xml', 3010, config.FORZADIR, self.resultsPath))
+        second = multiprocessing.Process(target=executeGame, args=('cgtrack2-solo-1.xml', 3002, 'cgtrack2-inferno-8.xml',3009, config.CGTRACKDIR, self.resultsPath))
+        third = multiprocessing.Process(target=executeGame, args=('etrack3-solo-2.xml', 3003, 'etrack3-inferno-7.xml', 3008, config.ETRACKDIR,self.resultsPath))
+        fourth = multiprocessing.Process(target=executeGame, args=('wheel1-solo-3.xml', 3004, 'wheel1-inferno-6.xml', 3007, config.WHEELDIR, self.resultsPath))
 
         first.start()
         second.start()
@@ -249,13 +244,9 @@ if __name__ == "__main__":
     jsonPath = os.path.join(resultsPath, "champion.json")
     writeXtoJson(pop.champion_x, filename=jsonPath)
     savedDictionary['pupulationSize'] = populationSize
-    savedDictionary['numberOfGenerations'] = numberOfGenerations
+    savedDictionary['numberOfGenerations'] = numberOfGeneration
+    savedDictionary['alfa'] = problem.alfa
+    savedDictionary['beta'] = problem.beta
 
-    savedDictionary['alfa'] = 0.05
-    savedDictionary['beta'] = 150
-
-
-    with open('finalPopulation.pickle','wb') as f:
+    with open('finalPopulation.pickle', 'wb') as f:
         pickle.dump(savedDictionary, f)
-
-
