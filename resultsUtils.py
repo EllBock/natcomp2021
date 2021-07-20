@@ -35,6 +35,19 @@ def takeResultsFromDirectory(directoryPath, numOfFiles):
         log = uda.get_log()
         fitnessValues.append(log[0][2])
 
+
+
+def readPickleFile(filepath):
+    results = []
+    with (open(filepath, "rb")) as openfile:
+        while True:
+            try:
+                results.append(pickle.load(openfile))
+            except EOFError:
+                break
+
+    return results
+
 def printResultsFromDirectory(directoryPath, numOfFiles):
 
     fitnessValues = []
@@ -85,7 +98,7 @@ def readResults(filepath):
     print('Number of generations : ' + str(number_of_generations))
     print('Alfa: ' + str(alfa))
     print('Beta: ' + str(beta))
-    print('Best parameters key,value are ' + best_parameters)
+    print('Best parameters key,value are ' + str(best_parameters))
     print(f'Best parameters found are {pop.champion_x} and its score is {pop.champion_f}')
 
 
