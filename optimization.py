@@ -14,6 +14,7 @@ import utils
 
 TIMEOUT = 1  # sec
 SLEEPTIME = 0.2  # sec
+COUNTER = 0
 
 
 def malformed_trackinfo(track):
@@ -86,18 +87,23 @@ def executeGame(warmup_config, warmup_port, race_config, race_port, config_path,
                                      args=(race_port, False, tempFolder, track_name, tempParametersFile, result_file))
     client.start()
 
+    # Waiting until client finishes
+
+    client.join(timeout=TIMEOUT)
+    if client.is_alive():
+        print(f'Client hanged, terminating...')
+        client.terminate()
+        client.join()
+        ret = 1
+
+
     # Waiting until TORCS finishes
     torcs_race.join()
 
     if torcs_race.exitcode == 1:  # TORCS_ERROR
-        if client.is_alive():
-            client.terminate()
-        raise Exception("Cannot start TORCS, (cannot bind socket). Aborting...")
+        ret = 2
 
-    # Waiting until client finishes
-    client.join()
-
-    return ret
+    exit(ret)
 
 
 class optimizationProblem:
@@ -163,9 +169,10 @@ class optimizationProblem:
         temp_directory = os.path.join(self.resultsPath, 'temp')
         score_list = np.array([])
 
+        print(retvalues)
         for i in range(len(retvalues)):
             filename = self.resultsFileNames[i]
-            if retvalues[i] == -1:
+            if retvalues[i] != 0 :
                 print(f"Skipped {filename} because client hanged")
                 continue
             d = utils.csv_to_column_dict(os.path.join(temp_directory, filename))
