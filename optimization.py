@@ -4,6 +4,7 @@ import multiprocessing
 import pickle
 
 import numpy as np
+import pygmo
 from pygmo.core import de1220, algorithm, population
 import os
 import time

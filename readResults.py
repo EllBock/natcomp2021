@@ -1,3 +1,4 @@
+import os.path
 import pickle
 import matplotlib.pyplot as plt
 from pygmo import de1220
@@ -12,6 +13,50 @@ from pygmo import de1220
     savedDictionary['numberOfGenerations'] = numberOfGenerations
     savedDictionary['alfa'] = problem.alfa
     savedDictionary['beta'] = problem.beta'''
+
+def takeResultsFromDirectory(directoryPath, numOfFiles):
+
+    fitnessValues = []
+    iterations = range(1, numOfFiles +1)
+
+    for i in iterations:
+        filePath = os.path.join(directoryPath,'resultsGeneration_'+str(i)+".pickle")
+        results = []
+        with (open(filePath, "rb")) as openfile:
+            while True:
+                try:
+                    results.append(pickle.load(openfile))
+                except EOFError:
+                    break
+
+        algo = results[0]['algorithm']
+        uda = algo.extract(de1220)
+        log = uda.get_log()
+        fitnessValues.append(log[0][2])
+
+def printResultsFromDirectory(directoryPath, numOfFiles):
+
+    fitnessValues = []
+    iterations = range(1, numOfFiles +1)
+
+    for i in iterations:
+        filePath = os.path.join(directoryPath,'resultsGeneration_'+str(i)+".pickle")
+        results = []
+        with (open(filePath, "rb")) as openfile:
+            while True:
+                try:
+                    results.append(pickle.load(openfile))
+                except EOFError:
+                    break
+
+        algo = results[0]['algorithm']
+        uda = algo.extract(de1220)
+        log = uda.get_log()
+        fitnessValues.append(log[0][2])
+
+    plt.plot(iterations, fitnessValues, 'k')
+    plt.show()
+
 
 def readResults(filepath):
 
@@ -44,5 +89,5 @@ def readResults(filepath):
     plt.show()
 
 if __name__ == "__main__":
-    readResults(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-171944\resultsGeneration_1.pickle")
-
+    #readResults(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-175212\resultsGeneration_100.pickle")
+    printResultsFromDirectory(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-175212",100)
