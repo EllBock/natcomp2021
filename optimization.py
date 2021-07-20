@@ -49,6 +49,7 @@ def start_client(port,tempFolder, tempParametersFile, results):
 
 def executeGame(race_config, race_port, config_path, resultsPath):
     ret = 0
+
     tempFolder = os.path.join(resultsPath, 'temp')
     tempParametersFile = os.path.join(tempFolder, 'parameters.json')
 
@@ -218,17 +219,14 @@ if __name__ == "__main__":
     populationSize = 30  # Total population size
     snakeoilPopSize = math.floor(populationSize * 0.80)  # Size of the population composed by snakeoils parameters
     randomPopulationSize = populationSize - snakeoilPopSize  # Size of the population compsed by random parameters
-    seed = 1 
-    alfa = 0.001  # 0.001 a 0.1
-    beta = 100  # 100 a 10000
+    seed = 1
+    alfa = 0.01  # 0.001 a 0.1
+    beta = 1000  # 100 a 10000
 
     # Initialize the problem
     problem = optimizationProblem(resultsPath,alfa,beta)
     pgOptimizationProblem = pg.problem(problem)
     print(pgOptimizationProblem)
-
-
-
 
     # Initialize the algorithm
     algo = algorithm(de1220(gen=SINGLE_GENERATION, variant_adptv=IDEvariant, ftol=-float("Inf"), memory=True))
