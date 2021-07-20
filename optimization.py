@@ -242,11 +242,11 @@ if __name__ == "__main__":
     snakeoilPopSize = math.floor(populationSize * 0.80)  # Size of the population composed by snakeoils parameters
     randomPopulationSize = populationSize - snakeoilPopSize  # Size of the population compsed by random parameters
     seed = 1
-    alfa = 0.01  # 0.001 a 0.1
-    beta = 1000  # 100 a 10000
+    alfa = 0.1  # 0.001 a 0.1
+    beta = 10000  # 100 a 10000
 
     # Initialize the problem
-    problem = optimizationProblem(resultsPath,alfa,beta)
+    problem = optimizationProblem(resultsPath, alfa, beta)
     pgOptimizationProblem = pg.problem(problem)
     print(pgOptimizationProblem)
 
