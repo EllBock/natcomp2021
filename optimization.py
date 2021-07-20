@@ -12,20 +12,8 @@ from parametersKeys import parameters, minimumValue, maximumValue, notOptimzedPa
 import config
 import utils
 
-TIMEOUT = 1  # sec
+TIMEOUT = 120  # sec
 SLEEPTIME = 0.2  # sec
-COUNTER = 0
-
-
-def malformed_trackinfo(track):
-    # with open(track + '.trackinfo', 'r')as f:
-    #     lines = f.readlines()
-    #     for l in lines:
-    #         data = l.strip().split(' ')
-    #         if len(data) < 4:
-    #             return True
-
-    return True
 
 
 def writeXtoJson(x, filename=None):
@@ -40,36 +28,26 @@ def writeXtoJson(x, filename=None):
 
 
 def start_torcs(config_file):
-    # print(f"Launch TORCS using {config_file}.")
-
     # Change the current working directory
     os.chdir(config.TORCSDIR)
 
     # Start TORCS
     command = f'wtorcs -t 100000 -r {config_file}'
-    # print('TORCS - ' + command)
     ret = os.system(command)
 
     return ret
 
 
-def start_client(port, warmup, tempFolder, trackname, tempParametersFile, results):
+def start_client(port,tempFolder, tempParametersFile, results):
     # print("Launch Client (warmup mode).")
     os.chdir(tempFolder)
+
     command = f'python2 {config.CLIENTPATH} -p {port} -f {tempParametersFile} -R {results}'
-
-    if warmup:
-        command += f' -s 0 -t {trackname}'
-    else:
-        if not malformed_trackinfo(trackname):
-            command += f' -s 2 -t {trackname}'
-
-    # print('CLIENT - ' + command)
     ret = os.system(command)
     return ret
 
 
-def executeGame(warmup_config, warmup_port, race_config, race_port, config_path, resultsPath):
+def executeGame(race_config, race_port, config_path, resultsPath):
     ret = 0
     tempFolder = os.path.join(resultsPath, 'temp')
     tempParametersFile = os.path.join(tempFolder, 'parameters.json')
@@ -84,7 +62,7 @@ def executeGame(warmup_config, warmup_port, race_config, race_port, config_path,
     # Actual game execution
     result_file = track_name + '.csv'
     client = multiprocessing.Process(target=start_client,
-                                     args=(race_port, False, tempFolder, track_name, tempParametersFile, result_file))
+                                     args=(race_port, tempFolder, tempParametersFile, result_file))
     client.start()
 
     # Waiting until client finishes
@@ -126,16 +104,16 @@ class optimizationProblem:
         workers = []
 
         workers.append(multiprocessing.Process(target=executeGame,
-                                               args=('forza-solo-0.xml', 3001, 'forza-inferno-9.xml',
+                                               args=('forza-inferno-9.xml',
                                                      3010, config.FORZADIR, self.resultsPath)))
         workers.append(multiprocessing.Process(target=executeGame,
-                                               args=('cgtrack2-solo-1.xml', 3002, 'cgtrack2-inferno-8.xml',
+                                               args=('cgtrack2-inferno-8.xml',
                                                      3009, config.CGTRACKDIR, self.resultsPath)))
         workers.append(multiprocessing.Process(target=executeGame,
-                                               args=('etrack3-solo-2.xml', 3003, 'etrack3-inferno-7.xml',
+                                               args=('etrack3-inferno-7.xml',
                                                      3008, config.ETRACKDIR, self.resultsPath)))
         workers.append(multiprocessing.Process(target=executeGame,
-                                               args=('wheel1-solo-3.xml', 3004, 'wheel1-inferno-6.xml',
+                                               args=('wheel1-inferno-6.xml',
                                                      3007, config.WHEELDIR, self.resultsPath)))
 
         # Start all the workers
