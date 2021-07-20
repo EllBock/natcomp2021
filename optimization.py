@@ -108,12 +108,12 @@ def executeGame(warmup_config, warmup_port, race_config, race_port, config_path,
 
 class optimizationProblem:
 
-    def __init__(self, resultsPath):
+    def __init__(self, resultsPath,alfa,beta):
         self.resultsPath = resultsPath
         self.resultsFileNames = ['forza.csv', 'cgtrack2.csv', 'etrack3.csv', 'wheel1.csv']  # IN ORDINE DI PORTA!
         # self.resultsFileNames = [ 'forza.csv' ]
-        self.alfa = 0.05
-        self.beta = 150
+        self.alfa = alfa
+        self.beta = beta
 
     # Deve ritornare un vettore (anche se il risultato è uno scalare) contenente la funzione di fitness valutata
     # nel punto x ( numpy array) .
@@ -233,21 +233,28 @@ if __name__ == "__main__":
     # Create directory for results
     resultsPath = initializeDirectory()
 
+    # Algorithm parameters
+    IDEvariant = 2  # IDE algorithm
+    numberOfGenerations = 200  # Number of generations to evolve
+    SINGLE_GENERATION = 1  # Parameters to handle the logging of the status parameter
+    populationSize = 30  # Total population size
+    snakeoilPopSize = math.floor(populationSize * 0.80)  # Size of the population composed by snakeoils parameters
+    randomPopulationSize = populationSize - snakeoilPopSize  # Size of the population compsed by random parameters
+    seed = 1 
+    alfa = 0.001  # 0.001 a 0.1
+    beta = 100  # 100 a 10000
+
     # Initialize the problem
-    problem = optimizationProblem(resultsPath)
+    problem = optimizationProblem(resultsPath,alfa,beta)
     pgOptimizationProblem = pg.problem(problem)
     print(pgOptimizationProblem)
 
-    # Algorithm parameters
-    IDEvariant = 2  # IDE algorithm
-    numberOfGenerations = 100  # Number of generations to evolve
-    SINGLE_GENERATION = 1  # Parameters to handle the logging of the status parameter
-    populationSize = 23  # Total population size
-    snakeoilPopSize = math.floor(populationSize * 0.80)  # Size of the population composed by snakeoils parameters
-    randomPopulationSize = populationSize - snakeoilPopSize  # Size of the population compsed by random parameters
+
+
 
     # Initialize the algorithm
     algo = algorithm(de1220(gen=SINGLE_GENERATION, variant_adptv=IDEvariant, ftol=-float("Inf"), memory=True))
+    algo.set_seed(seed)
     algo.set_verbosity(1)
 
     # Run the algorithm
