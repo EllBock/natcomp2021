@@ -2,6 +2,7 @@ import os.path
 import pickle
 import matplotlib.pyplot as plt
 from pygmo import de1220
+
 ''' savedDictionary['log'] = log
     savedDictionary['pop'] = pop
     parametersdict = dict(zip(parameters, pop.champion_x))
@@ -72,21 +73,24 @@ def readResults(filepath):
     algo = results[0]['algorithm']
     uda = algo.extract(de1220)
     log = uda.get_log()
-    pupulationSize = results[0]['pupulationSize']
+    pupulation_size = results[0]['pupulationSize']
+    best_parameters = results[0]['best_parameters']
     alfa = results[0]['alfa']
     beta = results[0]['beta']
-    numberOfGenerations = results[0]['numberOfGenerations']
+    number_of_generations = results[0]['numberOfGenerations']
 
     print(log)
     print('------------------ Algorithm Variables --------------')
-    print('Population Size: ' + str(pupulationSize))
-    print('Number of generations : ' + str(numberOfGenerations))
-    print('Alfa: '+ str(alfa))
-    print('Beta: '+ str(beta))
+    print('Population Size: ' + str(pupulation_size))
+    print('Number of generations : ' + str(number_of_generations))
+    print('Alfa: ' + str(alfa))
+    print('Beta: ' + str(beta))
+    print('Best parameters key,value are ' + best_parameters)
     print(f'Best parameters found are {pop.champion_x} and its score is {pop.champion_f}')
 
-    plt.plot([entry[0] for entry in log], [entry[2] for entry in log], 'k')
-    plt.show()
+
+
+
 
 if __name__ == "__main__":
     #readResults(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-175212\resultsGeneration_100.pickle")
