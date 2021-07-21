@@ -106,5 +106,6 @@ def readResults(filepath):
 
 
 if __name__ == "__main__":
-    #readResults(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-175212\resultsGeneration_100.pickle")
-    printResultsFromDirectory(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-175212",100)
+    filename = r"C:\Users\giuli\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\resultsGeneration_32.pickle"
+    readResults(filename)
+    #printResultsFromDirectory(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-175212",100)
