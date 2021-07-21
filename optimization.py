@@ -18,6 +18,10 @@ TIMEOUT_CLIENT = 120  # sec
 TIMEOUT_SERVER = 5  # sec
 SLEEPTIME = 0.2  # sec
 RESUME = True
+RESUME_FOLDER = r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026"
+RESUME_FILE = r'C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\championOfGeneration_32.json'
+RESUME_ITER = 33 # Generation + 1 (Quella da fare)
+
 
 def writeXtoJson(x, filename=None):
     parametersdict = dict(zip(parameters, x))
@@ -235,6 +239,8 @@ if __name__ == "__main__":
 
     # Create directory for results
     resultsPath = initializeDirectory()
+    if RESUME:
+        resultsPath = RESUME_FOLDER
 
     # Algorithm parameters
     IDEvariant = 2  # IDE algorithm
@@ -270,13 +276,14 @@ if __name__ == "__main__":
         pop.push_back(x_snakeoil)
 
     if RESUME:
-        results = readPickleFile(r'C:\Users\giuli\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\resultsGeneration_32.pickle')
+        results = readPickleFile(RESUME_FILE)
         pop = results[0]['pop']
         problem = results[0]['problem']
         algo = results[0]['algorithm']
 
     # Start the evolution
-    for i in range(1, numberOfGenerations + 1):
+    for i in range(1 if not RESUME else RESUME_ITER, numberOfGenerations + 1):
+
         # Evolve the previous population
         pop = algo.evolve(pop)
 
