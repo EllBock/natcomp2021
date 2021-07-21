@@ -1,3 +1,4 @@
+import copy
 import json
 import math
 import multiprocessing
@@ -19,7 +20,7 @@ TIMEOUT_SERVER = 5  # sec
 SLEEPTIME = 0.2  # sec
 RESUME = True
 RESUME_FOLDER = r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026"
-RESUME_FILE = r'C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\championOfGeneration_32.json'
+RESUME_FILE = r'C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\resultsGeneration_32.pickle'
 RESUME_ITER = 33 # Generation + 1 (Quella da fare)
 
 
@@ -30,6 +31,7 @@ def writeXtoJson(x, filename=None):
         jsonPath = os.path.join(resultsPath, 'temp', 'parameters.json')
     else:
         jsonPath = filename
+
     with open(jsonPath, 'w') as f:
         json.dump(parametersdict, f)
 
@@ -236,7 +238,7 @@ def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations
 
 
 if __name__ == "__main__":
-
+    RESUME = True
     # Create directory for results
     resultsPath = initializeDirectory()
     if RESUME:
@@ -256,34 +258,46 @@ if __name__ == "__main__":
     # Initialize the problem
     problem = optimizationProblem(resultsPath, alfa, beta)
     pgOptimizationProblem = pg.problem(problem)
-    print(pgOptimizationProblem)
+    #print(pgOptimizationProblem)
 
     # Initialize the algorithm
-    algo = algorithm(de1220(gen=SINGLE_GENERATION, variant_adptv=IDEvariant, ftol=-float("Inf"), memory=True))
-    algo.set_seed(seed)
-    algo.set_verbosity(1)
+
 
     # Run the algorithm
-    pop = population(pgOptimizationProblem, randomPopulationSize)
+    if not RESUME:
 
-    # Populate the remaining population with snakeoils default parameters\
-    x_snakeoil = []
+        pop = population(pgOptimizationProblem, randomPopulationSize)
 
-    for key in parameters:
-        x_snakeoil.append(defaultSnakeOilParameters[key])
+        # Populate the remaining population with snakeoils default parameters\
+        x_snakeoil = []
 
-    for i in range(snakeoilPopSize):
-        pop.push_back(x_snakeoil)
+        for key in parameters:
+            x_snakeoil.append(defaultSnakeOilParameters[key])
 
-    if RESUME:
-        results = readPickleFile(RESUME_FILE)
-        pop = results[0]['pop']
-        problem = results[0]['problem']
-        algo = results[0]['algorithm']
+        for i in range(snakeoilPopSize):
+            pop.push_back(x_snakeoil)
+
+        algo = algorithm(de1220(gen=SINGLE_GENERATION, variant_adptv=IDEvariant, ftol=-float("Inf"), memory=True))
+        algo.set_seed(seed)
+        algo.set_verbosity(1)
+
+    else:
+        # RESUMING FROM RESUME_FILE
+        print('Resuming from file '+ RESUME_FILE)
+        dictionary = readPickleFile(RESUME_FILE)
+        prev_pop = dictionary['pop']
+        pop = population(pgOptimizationProblem, size=0)
+
+        for element in prev_pop.get_x():
+            pop.push_back(element)
+
+        algo = dictionary['algorithm']
+
+
 
     # Start the evolution
     for i in range(1 if not RESUME else RESUME_ITER, numberOfGenerations + 1):
-
+        print('Iteration '+ str(i))
         # Evolve the previous population
         pop = algo.evolve(pop)
 

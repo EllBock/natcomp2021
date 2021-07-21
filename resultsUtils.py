@@ -22,15 +22,11 @@ def takeResultsFromDirectory(directoryPath, numOfFiles):
 
     for i in iterations:
         filePath = os.path.join(directoryPath,'resultsGeneration_'+str(i)+".pickle")
-        results = []
-        with (open(filePath, "rb")) as openfile:
-            while True:
-                try:
-                    results.append(pickle.load(openfile))
-                except EOFError:
-                    break
 
-        algo = results[0]['algorithm']
+        with (open(filePath, "rb")) as openfile:
+            results = pickle.load(openfile)
+
+        algo = results['algorithm']
         uda = algo.extract(de1220)
         log = uda.get_log()
         fitnessValues.append(log[0][2])
@@ -38,15 +34,11 @@ def takeResultsFromDirectory(directoryPath, numOfFiles):
 
 
 def readPickleFile(filepath):
-    results = []
-    with (open(filepath, "rb")) as openfile:
-        while True:
-            try:
-                results.append(pickle.load(openfile))
-            except EOFError:
-                break
 
-    return results
+    with (open(filepath, "rb")) as openfile:
+        result = pickle.load(openfile)
+
+    return result
 
 def printResultsFromDirectory(directoryPath, numOfFiles):
 
@@ -55,15 +47,11 @@ def printResultsFromDirectory(directoryPath, numOfFiles):
 
     for i in iterations:
         filePath = os.path.join(directoryPath,'resultsGeneration_'+str(i)+".pickle")
-        results = []
-        with (open(filePath, "rb")) as openfile:
-            while True:
-                try:
-                    results.append(pickle.load(openfile))
-                except EOFError:
-                    break
 
-        algo = results[0]['algorithm']
+        with (open(filePath, "rb")) as openfile:
+            results = pickle.load(openfile)
+
+        algo = results['algorithm']
         uda = algo.extract(de1220)
         log = uda.get_log()
         fitnessValues.append(log[0][2])
@@ -74,23 +62,19 @@ def printResultsFromDirectory(directoryPath, numOfFiles):
 
 def readResults(filepath):
 
-    results = []
     with (open(filepath, "rb")) as openfile:
-        while True:
-            try:
-                results.append(pickle.load(openfile))
-            except EOFError:
-                break
+            results = pickle.load(openfile)
 
-    pop = results[0]['pop']
-    algo = results[0]['algorithm']
+
+    pop = results['pop']
+    algo = results['algorithm']
     uda = algo.extract(de1220)
     log = uda.get_log()
-    pupulation_size = results[0]['pupulationSize']
-    best_parameters = results[0]['best_parameters']
-    alfa = results[0]['alfa']
-    beta = results[0]['beta']
-    number_of_generations = results[0]['numberOfGenerations']
+    pupulation_size = results['pupulationSize']
+    best_parameters = results['best_parameters']
+    alfa = results['alfa']
+    beta = results['beta']
+    number_of_generations = results['numberOfGenerations']
 
     print(log)
     print('------------------ Algorithm Variables --------------')
@@ -107,5 +91,5 @@ def readResults(filepath):
 
 if __name__ == "__main__":
     filename = r"C:\Users\giuli\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\resultsGeneration_32.pickle"
-    readResults(filename)
-    #printResultsFromDirectory(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210719-175212",100)
+    result = readResults(filename)
+    #printResultsFromDirectory(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026",32)
