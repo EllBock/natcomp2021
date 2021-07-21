@@ -151,7 +151,7 @@ class optimizationProblem:
         print(retvalues)
         for i in range(len(retvalues)):
             filename = self.resultsFileNames[i]
-            if retvalues[i] != 0 :
+            if retvalues[i] != 0:
                 print(f"Skipped {filename} because client hanged")
                 continue
             d = utils.csv_to_column_dict(os.path.join(temp_directory, filename))
@@ -180,7 +180,7 @@ def initializeDirectory():
     return os.path.abspath(results_path)
 
 
-def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem):
+def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem,seed):
     saved_dictionary = {}  # Initial empty dictionary
 
     # Where to save the pickles and json files
@@ -202,6 +202,8 @@ def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations
     saved_dictionary['numberOfGenerations'] = numberOfGenerations
     saved_dictionary['alfa'] = problem.alfa
     saved_dictionary['beta'] = problem.beta
+    saved_dictionary['problem'] = problem
+    saved_dictionary['seed'] = seed
 
     with open(pickle_path, 'wb') as f:
         pickle.dump(saved_dictionary, f)
@@ -219,7 +221,7 @@ if __name__ == "__main__":
     populationSize = 30  # Total population size
     snakeoilPopSize = math.floor(populationSize * 0.80)  # Size of the population composed by snakeoils parameters
     randomPopulationSize = populationSize - snakeoilPopSize  # Size of the population compsed by random parameters
-    seed = 1
+    seed = 2
     alfa = 0.1  # 0.001 a 0.1
     beta = 10000  # 100 a 10000
 
@@ -258,4 +260,4 @@ if __name__ == "__main__":
         print(f'Iterazione {i} - {log[0]}')
 
         # Save the state of the parameters after the current iteration
-        saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem)
+        saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem,seed)
