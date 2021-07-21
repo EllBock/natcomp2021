@@ -838,7 +838,7 @@ if __name__ == "__main__":
             if not cond:
                 # Salviamo l'ultimo stato prima di chiudere se non è stato già salvato
                 output.append(str(iter) + ", " + C.S.csvout())
-            print "Server shutdown!"
+            #print "Server shutdown!"
             break
         drive(C, step)
         C.respond_to_server()
