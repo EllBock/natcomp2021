@@ -12,7 +12,8 @@ from parametersKeys import parameters, minimumValue, maximumValue, notOptimzedPa
 import config
 import utils
 
-TIMEOUT = 120  # sec
+TIMEOUT_CLIENT = 120  # sec
+TIMEOUT_SERVER = 5  # sec
 SLEEPTIME = 0.2  # sec
 
 
@@ -27,12 +28,13 @@ def writeXtoJson(x, filename=None):
         json.dump(parametersdict, f)
 
 
+
 def start_torcs(config_file):
     # Change the current working directory
     os.chdir(config.TORCSDIR)
 
     # Start TORCS
-    command = f'wtorcs -t 100000 -r {config_file}'
+    command = f'wtorcs -t 100000 -r {config_file} 1>nul'
     ret = os.system(command)
 
     return ret
@@ -64,19 +66,25 @@ def executeGame(race_config, race_port, config_path, resultsPath):
     result_file = track_name + '.csv'
     client = multiprocessing.Process(target=start_client,
                                      args=(race_port, tempFolder, tempParametersFile, result_file))
+
     client.start()
 
     # Waiting until client finishes
 
-    client.join(timeout=TIMEOUT)
+    client.join(timeout=TIMEOUT_CLIENT)
     if client.is_alive():
         print(f'Client hanged, terminating...')
-        client.terminate()
-        client.join()
         ret = 1
 
+    client.terminate()
+    client.join()
 
-    # Waiting until TORCS finishes
+    torcs_race.join(timeout=TIMEOUT_SERVER)
+    if torcs_race.is_alive():
+        print(f'Torcs hanged, terminating... on port '+ race_port)
+        ret = 2
+
+    torcs_race.terminate()
     torcs_race.join()
 
     if torcs_race.exitcode == 1:  # TORCS_ERROR
@@ -134,7 +142,8 @@ class optimizationProblem:
         # end time
         end = time.time()
         # total time taken
-        print(f"Runtime of the program is {end - start}")
+        print(f"Fitness : {fitness} computed in {end - start} seconds")
+
         return fitness
 
     # Deve ritornare una coppia di np array contenente il minimo e massimo valore che i parametri possono assumere
@@ -148,10 +157,11 @@ class optimizationProblem:
         temp_directory = os.path.join(self.resultsPath, 'temp')
         score_list = np.array([])
 
-        print(retvalues)
+        print(f'Game execution returned {retvalues}')
+
         for i in range(len(retvalues)):
             filename = self.resultsFileNames[i]
-            if retvalues[i] != 0 :
+            if retvalues[i] != 0:
                 print(f"Skipped {filename} because client hanged")
                 continue
             d = utils.csv_to_column_dict(os.path.join(temp_directory, filename))
@@ -162,9 +172,19 @@ class optimizationProblem:
             score_list = np.append(score_list, score)
 
         if score_list.shape[0] == 0:
-            raise RuntimeError('WTH? All clients seem to have hanged.')
+            return np.array([float('inf')])
 
         fitness = - np.average(score_list)
+
+        import psutil
+        for proc in psutil.process_iter():
+            if proc.name() == 'wtorcs.exe':
+                print('Killing wtorcs.exe')
+                proc.kill()
+            if proc.name() == 'python2.exe':
+                print('Killing python2.exe')
+                proc.kill()
+
 
         return np.array([fitness])
 
@@ -180,7 +200,7 @@ def initializeDirectory():
     return os.path.abspath(results_path)
 
 
-def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem):
+def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem,seed):
     saved_dictionary = {}  # Initial empty dictionary
 
     # Where to save the pickles and json files
@@ -202,6 +222,8 @@ def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations
     saved_dictionary['numberOfGenerations'] = numberOfGenerations
     saved_dictionary['alfa'] = problem.alfa
     saved_dictionary['beta'] = problem.beta
+    saved_dictionary['problem'] = problem
+    saved_dictionary['seed'] = seed
 
     with open(pickle_path, 'wb') as f:
         pickle.dump(saved_dictionary, f)
@@ -219,7 +241,7 @@ if __name__ == "__main__":
     populationSize = 30  # Total population size
     snakeoilPopSize = math.floor(populationSize * 0.80)  # Size of the population composed by snakeoils parameters
     randomPopulationSize = populationSize - snakeoilPopSize  # Size of the population compsed by random parameters
-    seed = 1
+    seed = 2
     alfa = 0.1  # 0.001 a 0.1
     beta = 10000  # 100 a 10000
 
@@ -258,4 +280,4 @@ if __name__ == "__main__":
         print(f'Iterazione {i} - {log[0]}')
 
         # Save the state of the parameters after the current iteration
-        saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem)
+        saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem,seed)

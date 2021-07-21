@@ -184,11 +184,11 @@ class Client():
                 sockdata, addr = self.so.recvfrom(1024)
             except socket.error, emsg:
                 if print_waiting_message:
-                    print "Waiting for server on %d............" % self.port
+                    #print "Waiting for server on %d............ \n" % self.port
                     print_waiting_message = False
                 pass
             if '***identified***' in sockdata:
-                print "Client connected on %d.............." % self.port
+                print "Client connected on %d... \t" % self.port
                 break
 
     def parse_the_command_line(self):
