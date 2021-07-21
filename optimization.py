@@ -11,11 +11,13 @@ import pygmo as pg
 from parametersKeys import parameters, minimumValue, maximumValue, notOptimzedParameters, defaultSnakeOilParameters
 import config
 import utils
+from resultsUtils import readPickleFile
+import psutil
 
 TIMEOUT_CLIENT = 120  # sec
 TIMEOUT_SERVER = 5  # sec
 SLEEPTIME = 0.2  # sec
-
+RESUME = True
 
 def writeXtoJson(x, filename=None):
     parametersdict = dict(zip(parameters, x))
@@ -176,7 +178,7 @@ class optimizationProblem:
 
         fitness = - np.average(score_list)
 
-        import psutil
+
         for proc in psutil.process_iter():
             if proc.name() == 'wtorcs.exe':
                 print('Killing wtorcs.exe')
@@ -266,6 +268,12 @@ if __name__ == "__main__":
 
     for i in range(snakeoilPopSize):
         pop.push_back(x_snakeoil)
+
+    if RESUME:
+        results = readPickleFile(r'C:\Users\giuli\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\resultsGeneration_32.pickle')
+        pop = results[0]['pop']
+        problem = results[0]['problem']
+        algo = results[0]['algorithm']
 
     # Start the evolution
     for i in range(1, numberOfGenerations + 1):
