@@ -18,11 +18,10 @@ import psutil
 TIMEOUT_CLIENT = 120  # sec
 TIMEOUT_SERVER = 5  # sec
 SLEEPTIME = 0.2  # sec
-RESUME = True
+RESUME = False
 RESUME_FOLDER = r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026"
 RESUME_FILE = r'C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\resultsGeneration_32.pickle'
 RESUME_ITER = 33 # Generation + 1 (Quella da fare)
-
 
 def writeXtoJson(x, filename=None):
     parametersdict = dict(zip(parameters, x))
@@ -34,8 +33,6 @@ def writeXtoJson(x, filename=None):
 
     with open(jsonPath, 'w') as f:
         json.dump(parametersdict, f)
-
-
 
 def start_torcs(config_file):
     # Change the current working directory
@@ -55,7 +52,6 @@ def start_client(port,tempFolder, tempParametersFile, results):
     command = f'python2 {config.CLIENTPATH} -p {port} -f {tempParametersFile} -R {results}'
     ret = os.system(command)
     return ret
-
 
 def executeGame(race_config, race_port, config_path, resultsPath):
     ret = 0
@@ -78,7 +74,6 @@ def executeGame(race_config, race_port, config_path, resultsPath):
     client.start()
 
     # Waiting until client finishes
-
     client.join(timeout=TIMEOUT_CLIENT)
     if client.is_alive():
         print(f'Client hanged, terminating...')
@@ -99,7 +94,6 @@ def executeGame(race_config, race_port, config_path, resultsPath):
         ret = 2
 
     exit(ret)
-
 
 class optimizationProblem:
 
@@ -208,7 +202,7 @@ def initializeDirectory():
     return os.path.abspath(results_path)
 
 
-def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem,seed):
+def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem):
     saved_dictionary = {}  # Initial empty dictionary
 
     # Where to save the pickles and json files
@@ -230,15 +224,14 @@ def saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations
     saved_dictionary['numberOfGenerations'] = numberOfGenerations
     saved_dictionary['alfa'] = problem.alfa
     saved_dictionary['beta'] = problem.beta
-    saved_dictionary['problem'] = problem
-    saved_dictionary['seed'] = seed
+
 
     with open(pickle_path, 'wb') as f:
         pickle.dump(saved_dictionary, f)
 
 
 if __name__ == "__main__":
-    RESUME = True
+
     # Create directory for results
     resultsPath = initializeDirectory()
     if RESUME:
@@ -288,9 +281,12 @@ if __name__ == "__main__":
         prev_pop = dictionary['pop']
         pop = population(pgOptimizationProblem, size=0)
 
+        print(str(prev_pop.champion_x) + " F: " + str(prev_pop.champion_f))
+
         for element in prev_pop.get_x():
             pop.push_back(element)
 
+        print(str(pop.champion_x) + " F: " + str(pop.champion_f))
         algo = dictionary['algorithm']
 
 
@@ -309,4 +305,4 @@ if __name__ == "__main__":
         print(f'Iterazione {i} - {log[0]}')
 
         # Save the state of the parameters after the current iteration
-        saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem,seed)
+        saveStateFile(resultsPath, i, algo, pop, populationSize, numberOfGenerations, problem)

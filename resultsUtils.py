@@ -90,6 +90,8 @@ def readResults(filepath):
 
 
 if __name__ == "__main__":
-    filename = r"C:\Users\giuli\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\resultsGeneration_32.pickle"
+    filename = r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026\resultsGeneration_32.pickle"
     result = readResults(filename)
-    #printResultsFromDirectory(r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026",32)
+
+    directory = r"C:\Users\Adria\OneDrive\Documenti\GitHub\natcomp2021\results\Run_210720-143026"
+    printResultsFromDirectory(directory,33)
