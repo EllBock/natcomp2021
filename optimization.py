@@ -179,7 +179,10 @@ class optimizationProblem:
         import psutil
         for proc in psutil.process_iter():
             if proc.name() == 'wtorcs.exe':
-                print('I killed WTORCS AHAHAHAHAHAH')
+                print('Killing wtorcs.exe')
+                proc.kill()
+            if proc.name() == 'python2.exe':
+                print('Killing python2.exe')
                 proc.kill()
 
 
