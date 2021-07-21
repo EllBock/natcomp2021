@@ -84,7 +84,7 @@ def executeGame(race_config, race_port, config_path, resultsPath):
 
     torcs_race.join(timeout=TIMEOUT_SERVER)
     if torcs_race.is_alive():
-        print(f'Torcs hanged, terminating... on port '+ race_port)
+        print(f'Torcs hanged ({race_port}), terminating...')
         ret = 2
 
     torcs_race.terminate()
