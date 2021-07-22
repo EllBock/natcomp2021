@@ -6,13 +6,18 @@ import numpy as np
 
 
 FILENAME = "results/forza_1.csv"
+
+SNAKEOIL = "/home/ellbock/Workbench/natcomp2021/results/210715-162431.csv"
+UNISAOIL = "/home/ellbock/Workbench/natcomp2021/results/210715-162302.csv"
+
+# MAIN 1
 KEYS = [
         # 'iteration',
         # 'curLapTime',
         # 'lastLapTime',
-        'raceTime',
+        #'raceTime',
         # 'stucktimer',
-        'damage',
+        #'damage',
         # 'distRaced',
         # 'distFromStart',
         # 'racePos',
@@ -28,6 +33,13 @@ KEYS = [
         # 'trackPos',
         # 'angle',
         ]
+
+LABELS = {'speed': 'Speed [km/h]',
+          'distRaced': 'Distance [km]',
+          'damage': 'Damage',
+          'speedFromDist': 'Speed in sense of track [km/h]',
+          'raceTime': 'Time [s]'}
+
 
 
 def csv_to_column_dict(filename: str):
@@ -87,6 +99,18 @@ def calculate_race_time(csv_col_dict: dict):
 
     return csv_col_dict
 
+def calculate_speed_by_distance(csv_col_dict: dict):
+    space = np.array(csv_col_dict['distRaced'])
+    time = np.array(csv_col_dict['raceTime'])
+
+    d_space = space[1:] - space[:len(space)-1]
+    d_time = time[1:] - time[:len(time) - 1]
+
+    speed = d_space/d_time
+    speed = np.append(0., speed)
+    csv_col_dict['speedFromDist'] = list(speed)
+    return csv_col_dict
+
 
 def calculate_offroad_time(csv_col_dict: dict):
     trackPos = np.array(csv_col_dict['trackPos'])
@@ -107,8 +131,8 @@ def calculate_offroad_time(csv_col_dict: dict):
     return offroad_time
 
 
-if __name__ == "__main__":
-    d = csv_to_column_dict(FILENAME)
+def main1(filename):
+    d = csv_to_column_dict(filename)
     d = calculate_effective_speed(d)
     d = calculate_race_time(d)
 
@@ -135,3 +159,41 @@ if __name__ == "__main__":
 
     plt.show()
 
+
+
+def main2(fname1, fname2, keys, labels):
+    """
+    Primo snakeoil, secondo Unisaoil
+    """
+    d = []
+    d.append(csv_to_column_dict(fname1))
+    d.append(csv_to_column_dict(fname2))
+
+    for i in range(len(d)):
+        d[i] = calculate_effective_speed(d[i])
+        d[i] = calculate_race_time(d[i])
+        d[i] = calculate_speed_by_distance(d[i])
+
+    print(f"Offroad SnakeOil: {calculate_offroad_time(d[0])}")
+    print(f"Offroad UnisaOil: {calculate_offroad_time(d[1])}")
+
+    plt.figure(1)
+    plt.plot(d[0]['distRaced'], d[0]['speed'], label='SnakeOil')
+    plt.plot(d[1]['distRaced'], d[1]['speed'], label='UnisaOil')
+    plt.xlabel(labels['distRaced'])
+    plt.ylabel(labels['speed'])
+    plt.legend()
+
+    plt.figure(2)
+    plt.plot(d[0]['raceTime'], d[0]['speedFromDist'], label='SnakeOil')
+    plt.plot(d[1]['raceTime'], d[1]['speedFromDist'], label='UnisaOil')
+    plt.xlabel(labels['raceTime'])
+    plt.ylabel(labels['speedFromDist'])
+    plt.legend()
+
+    plt.show()
+
+
+if __name__ == "__main__":
+    #main1(FILENAME)
+    main2(SNAKEOIL, UNISAOIL, KEYS, LABELS)
