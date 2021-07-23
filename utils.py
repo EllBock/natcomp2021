@@ -7,8 +7,8 @@ import numpy as np
 
 FILENAME = "results/forza_1.csv"
 
-SNAKEOIL = r"/home/ellbock/Workbench/natcomp2021/comparisons/SnakeOil-Forza.csv"
-UNISAOIL = r"/home/ellbock/Workbench/natcomp2021/comparisons/UnisaOil-Forza.csv"
+SNAKEOIL = r"/home/ellbock/Workbench/natcomp2021/comparisons/SnakeOil-Etrack4.csv"
+UNISAOIL = r"/home/ellbock/Workbench/natcomp2021/comparisons/UnisaOil-Etrack4.csv"
 
 # MAIN 1
 KEYS = [
@@ -35,7 +35,7 @@ KEYS = [
         ]
 
 LABELS = {'speed': 'Speed [km/h]',
-          'distRaced': 'Distance [km]',
+          'distRaced': 'Distance [m]',
           'damage': 'Damage',
           'speedFromDist': 'Speed along the track [km/h]',
           'raceTime': 'Time [s]'}
@@ -190,7 +190,7 @@ def main2(fname1, fname2, keys, labels):
     plt.xlabel(labels['raceTime'])
     plt.ylabel(labels['speedFromDist'])
     plt.legend()
-    #plt.savefig('unisavssnake-forza-time.pdf', format='pdf')
+    plt.savefig('unisavssnake-etrack4-time.pdf', format='pdf')
 
     plt.figure(3)
     plt.plot(d[0]['distRaced'], d[0]['speedFromDist'], label='SnakeOil')
@@ -198,7 +198,7 @@ def main2(fname1, fname2, keys, labels):
     plt.xlabel(labels['distRaced'])
     plt.ylabel(labels['speedFromDist'])
     plt.legend()
-    #plt.savefig('unisavssnake-etrack4-dist.pdf', format='pdf')
+    plt.savefig('unisavssnake-etrack4-dist.pdf', format='pdf')
 
     plt.show()
 
