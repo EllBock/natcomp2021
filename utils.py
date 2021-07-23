@@ -7,8 +7,8 @@ import numpy as np
 
 FILENAME = "results/forza_1.csv"
 
-SNAKEOIL = "/home/ellbock/Workbench/natcomp2021/results/210715-162431.csv"
-UNISAOIL = "/home/ellbock/Workbench/natcomp2021/results/210715-162302.csv"
+SNAKEOIL = r"/home/ellbock/Workbench/natcomp2021/comparisons/SnakeOil-Forza.csv"
+UNISAOIL = r"/home/ellbock/Workbench/natcomp2021/comparisons/UnisaOil-Forza.csv"
 
 # MAIN 1
 KEYS = [
@@ -37,7 +37,7 @@ KEYS = [
 LABELS = {'speed': 'Speed [km/h]',
           'distRaced': 'Distance [km]',
           'damage': 'Damage',
-          'speedFromDist': 'Speed in sense of track [km/h]',
+          'speedFromDist': 'Speed along the track [km/h]',
           'raceTime': 'Time [s]'}
 
 
@@ -108,7 +108,7 @@ def calculate_speed_by_distance(csv_col_dict: dict):
 
     speed = d_space/d_time
     speed = np.append(0., speed)
-    csv_col_dict['speedFromDist'] = list(speed)
+    csv_col_dict['speedFromDist'] = list(speed * 3.6)
     return csv_col_dict
 
 
@@ -177,12 +177,12 @@ def main2(fname1, fname2, keys, labels):
     print(f"Offroad SnakeOil: {calculate_offroad_time(d[0])}")
     print(f"Offroad UnisaOil: {calculate_offroad_time(d[1])}")
 
-    plt.figure(1)
-    plt.plot(d[0]['distRaced'], d[0]['speed'], label='SnakeOil')
-    plt.plot(d[1]['distRaced'], d[1]['speed'], label='UnisaOil')
-    plt.xlabel(labels['distRaced'])
-    plt.ylabel(labels['speed'])
-    plt.legend()
+    #plt.figure(1)
+    #plt.plot(d[0]['distRaced'], d[0]['speed'], label='SnakeOil')
+    #plt.plot(d[1]['distRaced'], d[1]['speed'], label='UnisaOil')
+    #plt.xlabel(labels['distRaced'])
+    #plt.ylabel(labels['speed'])
+    #plt.legend()
 
     plt.figure(2)
     plt.plot(d[0]['raceTime'], d[0]['speedFromDist'], label='SnakeOil')
@@ -190,9 +190,17 @@ def main2(fname1, fname2, keys, labels):
     plt.xlabel(labels['raceTime'])
     plt.ylabel(labels['speedFromDist'])
     plt.legend()
+    #plt.savefig('unisavssnake-forza-time.pdf', format='pdf')
+
+    plt.figure(3)
+    plt.plot(d[0]['distRaced'], d[0]['speedFromDist'], label='SnakeOil')
+    plt.plot(d[1]['distRaced'], d[1]['speedFromDist'], label='UnisaOil')
+    plt.xlabel(labels['distRaced'])
+    plt.ylabel(labels['speedFromDist'])
+    plt.legend()
+    #plt.savefig('unisavssnake-etrack4-dist.pdf', format='pdf')
 
     plt.show()
-
 
 if __name__ == "__main__":
     #main1(FILENAME)
